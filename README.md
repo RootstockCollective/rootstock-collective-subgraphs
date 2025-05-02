@@ -15,6 +15,12 @@ The project is ready to be used at this point.
 
 ## Commands
 
+### Subgraph preparation
+
+```sh
+npm run prepare:dev
+```
+
 ### Code generation
 
 ```sh
