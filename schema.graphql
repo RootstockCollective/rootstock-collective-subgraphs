@@ -1,0 +1,29 @@
+type NewAllocation @entity(immutable: true) {
+  id: Bytes!
+  backer_: Bytes! # address
+  gauge_: Bytes! # address
+  allocation_: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+
+type BackerStakingHistory @entity {
+  id: Bytes!
+  backerTotalAllocation_: BigInt!
+  accumulatedTime_: BigInt!
+  lastBlockNumber_: BigInt!
+  lastBlockTimestamp_: BigInt!
+  gauges_: [GaugeStakingHistory!]! @derivedFrom(field: "backer_")
+}
+
+type GaugeStakingHistory @entity {
+  id: Bytes!
+  gauge_: Bytes! # address
+  backer_: BackerStakingHistory!
+  allocation_: BigInt!
+  accumulatedAllocationsTime_: BigInt!
+  lastBlockNumber_: BigInt!
+  lastBlockTimestamp_: BigInt!
+}

@@ -1,0 +1,27 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: BackersManagerRootstockCollective
+    network: {{network}}
+    source:
+      address: "{{backersManager.address}}"
+      abi: BackersManagerRootstockCollective
+      startBlock: {{backersManager.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - BackerStakingHistory
+        - GaugeStakingHistory
+      abis:
+        - name: BackersManagerRootstockCollective
+          file: ./abis/BackersManagerRootstockCollective.json
+      eventHandlers:
+        - event: NewAllocation(indexed address,indexed address,uint256)
+          handler: handleNewAllocation
+      file: ./src/backers-manager-rootstock-collective.ts
