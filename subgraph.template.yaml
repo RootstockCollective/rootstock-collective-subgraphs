@@ -21,8 +21,6 @@ dataSources:
       abis:
         - name: BackersManagerRootstockCollective
           file: ./abis/BackersManagerRootstockCollective.json
-        - name: GaugeRootstockCollective
-          file: ./abis/GaugeRootstockCollective.json
       eventHandlers:
         - event: NewAllocation(indexed address,indexed address,uint256)
           handler: handleNewAllocation
