@@ -1,9 +1,9 @@
-import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { GaugeToBuilder, Builder, BuilderState, ContractConfig } from "../generated/schema";
 import { GaugeRootstockCollective } from "../generated/templates";
-import { CONTRACT_CONFIG_ID, loadOrCreateBuilder, loadOrCreateBackerRewardPercentage, loadOrCreateBuilderState, loadOrCreateCycle, logEntityNotFound } from "./utils";
+import { CONTRACT_CONFIG_ID, loadOrCreateBuilder, loadOrCreateBackerRewardPercentage, loadOrCreateBuilderState, loadOrCreateCycle, logEntityNotFound, updateBlockInfo } from "./utils";
 
-export function gaugeCreated(builder: Address, gauge: Address): void {
+export function gaugeCreated(builder: Address, gauge: Address, event: ethereum.Event): void {
   GaugeRootstockCollective.create(gauge);
 
   const builderEntity = loadOrCreateBuilder(builder);
@@ -25,20 +25,24 @@ export function gaugeCreated(builder: Address, gauge: Address): void {
   const builders = contractConfig.builders;
   builders.push(builder);
   contractConfig.builders = builders;
-  contractConfig.save();
+
+  updateBlockInfo(event, ["Builder", "BackerRewardPercentage", "GaugeToBuilder"]);
 }
 
-export function communityApproved(builder: Address): void {
+export function communityApproved(builder: Address, event: ethereum.Event): void {
   const builderState = loadOrCreateBuilderState(builder);
   builderState.communityApproved = true;
   builderState.save();
+
+  updateBlockInfo(event, ["BuilderState"]);
 }
 
 export function builderInitialized(
   builder: Address,
   rewardReceiver: Address,
   rewardPercentage: BigInt,
-  cooldown: BigInt
+  cooldown: BigInt,
+  event: ethereum.Event
 ): void {
   const builderEntity = loadOrCreateBuilder(builder);
   builderEntity.rewardReceiver = rewardReceiver;
@@ -55,15 +59,17 @@ export function builderInitialized(
   builderEntity.save();
   builderState.save();
   backerRewardPercentage.save();
+
+  updateBlockInfo(event, ["Builder", "BuilderState", "BackerRewardPercentage"]);
 }
 
-export function communityBanned(builder: Address): void {
+export function communityBanned(builder: Address, event: ethereum.Event): void {
   const builderEntity = Builder.load(builder);
   if (builderEntity == null) {
     logEntityNotFound('Builder', builder.toHexString(), 'Shared.communityBanned');
     return;
   }
-  haltBuilder(builderEntity);
+  haltBuilder(builderEntity); // Updates Builder and Cycle
 
   const builderState = BuilderState.load(builder);
   if (builderState == null) {
@@ -72,15 +78,17 @@ export function communityBanned(builder: Address): void {
   }
   builderState.communityApproved = false;
   builderState.save();
+
+  updateBlockInfo(event, ["Builder", "BuilderState", "Cycle"]);
 }
 
-export function kycApproved(builder: Address): void {
+export function kycApproved(builder: Address, event: ethereum.Event): void {
   const builderEntity = Builder.load(builder);
   if (builderEntity == null) {
     logEntityNotFound('Builder', builder.toHexString(), 'Shared.kycApproved');
     return;
   }
-  resumeBuilder(builderEntity);
+  resumeBuilder(builderEntity); // Updates Builder and Cycle
 
   const builderState = BuilderState.load(builder);
   if (builderState == null) {
@@ -89,15 +97,17 @@ export function kycApproved(builder: Address): void {
   }
   builderState.kycApproved = true;
   builderState.save();
+
+  updateBlockInfo(event, ["Builder", "BuilderState", "Cycle"]);
 }
 
-export function kycRevoked(builder: Address): void {
+export function kycRevoked(builder: Address, event: ethereum.Event): void {
   const builderEntity = Builder.load(builder);
   if (builderEntity == null) {
     logEntityNotFound('Builder', builder.toHexString(), 'Shared.kycRevoked');
     return;
   }
-  haltBuilder(builderEntity);
+  haltBuilder(builderEntity); // Updates Builder and Cycle
 
   const builderState = BuilderState.load(builder);
   if (builderState == null) {
@@ -106,16 +116,20 @@ export function kycRevoked(builder: Address): void {
   }
   builderState.kycApproved = false;
   builderState.save();
+
+  updateBlockInfo(event, ["Builder", "BuilderState", "Cycle"]);
 }
 
-export function kycPaused(builder: Address, reason: Bytes): void {
+export function kycPaused(builder: Address, reason: Bytes, event: ethereum.Event): void {
   const builderState = loadOrCreateBuilderState(builder);
   builderState.kycPaused = true;
   builderState.pausedReason = reason;
   builderState.save();
+
+  updateBlockInfo(event, ["BuilderState"]);
 }
 
-export function kycResumed(builder_: Address): void {
+export function kycResumed(builder_: Address, event: ethereum.Event): void {
   const builderState = BuilderState.load(builder_);
   if (builderState == null) {
     logEntityNotFound('BuilderState', builder_.toHexString(), 'Shared.kycResumed');
@@ -123,15 +137,17 @@ export function kycResumed(builder_: Address): void {
   }
   builderState.kycPaused = false;
   builderState.save();
+
+  updateBlockInfo(event, ["BuilderState"]);
 }
 
-export function selfPaused(builder: Address): void {
+export function selfPaused(builder: Address, event: ethereum.Event): void {
   const builderEntity = Builder.load(builder);
   if (builderEntity == null) {
     logEntityNotFound('Builder', builder.toHexString(), 'Shared.selfPaused');
     return;
   }
-  haltBuilder(builderEntity);
+  haltBuilder(builderEntity); // Updates Builder and Cycle
 
   const builderState = BuilderState.load(builder);
   if (builderState == null) {
@@ -140,15 +156,17 @@ export function selfPaused(builder: Address): void {
   }
   builderState.selfPaused = true;
   builderState.save();
+
+  updateBlockInfo(event, ["Builder", "BuilderState", "Cycle"]);
 }
 
-export function selfResumed(builder: Address, rewardPercentage: BigInt, cooldown: BigInt, timestamp: BigInt): void {
+export function selfResumed(builder: Address, rewardPercentage: BigInt, cooldown: BigInt, timestamp: BigInt, event: ethereum.Event): void {
   const builderEntity = Builder.load(builder);
   if (builderEntity == null) {
     logEntityNotFound('Builder', builder.toHexString(), 'Shared.selfResumed');
     return;
   }
-  resumeBuilder(builderEntity);
+  resumeBuilder(builderEntity); // Updates Builder and Cycle
 
   const builderState = BuilderState.load(builder);
   if (builderState == null) {
@@ -159,11 +177,13 @@ export function selfResumed(builder: Address, rewardPercentage: BigInt, cooldown
   builderState.save();
 
   updateBackerRewardPercentage(builder, rewardPercentage, cooldown, timestamp);
+  updateBlockInfo(event, ["Builder", "BuilderState", "BackerRewardPercentage", "Cycle"]);
 }
 
 export function rewardReceiverUpdated(
   builder: Address,
-  newRewardReceiver: Address
+  newRewardReceiver: Address,
+  event: ethereum.Event
 ): void {
   const builderEntity = Builder.load(builder);
   if (builderEntity == null) {
@@ -172,10 +192,13 @@ export function rewardReceiverUpdated(
   }
   builderEntity.rewardReceiver = newRewardReceiver;
   builderEntity.save();
+
+  updateBlockInfo(event, ["Builder"]);
 }
 
-export function backerRewardPercentageUpdateScheduled(builder: Address, rewardPercentage: BigInt, cooldown: BigInt, timestamp: BigInt): void {
+export function backerRewardPercentageUpdateScheduled(builder: Address, rewardPercentage: BigInt, cooldown: BigInt, timestamp: BigInt, event: ethereum.Event): void {
   updateBackerRewardPercentage(builder, rewardPercentage, cooldown, timestamp);
+  updateBlockInfo(event, ["BackerRewardPercentage"]);
 }
 
 function resumeBuilder(builderEntity: Builder): void {

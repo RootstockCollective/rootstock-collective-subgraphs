@@ -2,5 +2,5 @@ import { CommunityApproved as CommunityApprovedEvent } from "../../generated/Bui
 import { communityApproved } from "../shared";
 
 export function handleCommunityApproved(event: CommunityApprovedEvent): void {
-  communityApproved(event.params.builder_);
+  communityApproved(event.params.builder_, event);
 }

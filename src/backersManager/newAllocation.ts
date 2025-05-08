@@ -9,7 +9,7 @@ import {
 } from "../../generated/schema";
 import { BackersManagerRootstockCollective as BackersManagerRootstockCollectiveContract } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
 import { GaugeRootstockCollective as GaugeRootstockCollectiveContract } from "../../generated/templates/GaugeRootstockCollective/GaugeRootstockCollective";
-import { DEFAULT_BIGINT, loadOrCreateCycle, logEntityNotFound } from "../utils";
+import { DEFAULT_BIGINT, loadOrCreateCycle, logEntityNotFound, updateBlockInfo } from "../utils";
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 
 export function handleNewAllocation(event: NewAllocationEvent): void {
@@ -24,6 +24,8 @@ export function handleNewAllocation(event: NewAllocationEvent): void {
   _handleBuilder(event, gaugeToBuilder  );
   _handleBacker(event, gaugeToBuilder);
   _handleBackerToBuilder(event, gaugeToBuilder);
+
+  updateBlockInfo(event, ["Builder", "Backer", "BackerToBuilder", "Cycle", "BackerStakingHistory","GaugeStakingHistory"]);
 }
 
 function _handleBackerStakingHistory(event: NewAllocationEvent): void {
@@ -31,7 +33,7 @@ function _handleBackerStakingHistory(event: NewAllocationEvent): void {
   const backersManagerContract = BackersManagerRootstockCollectiveContract.bind(
     event.address
   );
-  const backerTotalAllocation_ =
+  const backerTotalAllocation =
     backersManagerContract.backerTotalAllocation(backerAddress);
 
   let backer = BackerStakingHistory.load(backerAddress);
@@ -50,7 +52,7 @@ function _handleBackerStakingHistory(event: NewAllocationEvent): void {
   }
   backer.lastBlockNumber_ = event.block.number;
   backer.lastBlockTimestamp_ = event.block.timestamp;
-  backer.backerTotalAllocation_ = backerTotalAllocation_;
+  backer.backerTotalAllocation_ = backerTotalAllocation;
   backer.save();
 
   const gaugeId = backerAddress.concat(event.params.gauge_);

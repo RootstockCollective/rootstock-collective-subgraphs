@@ -120,4 +120,14 @@ type ContractConfig @entity(immutable: false) {
   builderRegistry: Bytes!
   rewardDistributor: Bytes!
   builders: [Bytes!]!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  blockHash: Bytes!
+}
+
+type BlockChangeLog @entity(immutable: false) {
+  id: Bytes!                      # blockHash
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  updatedEntities: [String!]! 
 }

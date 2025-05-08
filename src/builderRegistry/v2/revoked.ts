@@ -2,5 +2,5 @@ import { Revoked as RevokedEvent } from "../../../generated/BuilderRegistryRoots
 import { selfPaused } from "../../shared";
 
 export function handleRevoked(event: RevokedEvent): void {
-  selfPaused(event.params.builder_);
+  selfPaused(event.params.builder_, event);
 }

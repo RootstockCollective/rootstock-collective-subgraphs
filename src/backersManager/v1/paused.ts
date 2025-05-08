@@ -2,5 +2,5 @@ import { Paused as PausedEvent } from "../../../generated/BuilderRegistryRootsto
 import { kycPaused } from "../../shared";
 
 export function handlePaused(event: PausedEvent): void {
-  kycPaused(event.params.builder_, event.params.reason_);
+  kycPaused(event.params.builder_, event.params.reason_, event);
 }

@@ -2,7 +2,7 @@ import { RewardDistributionFinished as RewardDistributionFinishedEvent } from ".
 import { BackersManagerRootstockCollective as BackersManagerRootstockCollectiveContract } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
 import { GaugeRootstockCollective as GaugeRootstockCollectiveContract } from "../../generated/templates/GaugeRootstockCollective/GaugeRootstockCollective";
 import { Builder, ContractConfig, Cycle } from "../../generated/schema";
-import { CONTRACT_CONFIG_ID, logEntityNotFound } from "../utils";
+import { CONTRACT_CONFIG_ID, logEntityNotFound, updateBlockInfo } from "../utils";
 import { Address } from "@graphprotocol/graph-ts";
 
 export function handleRewardDistributionFinished(
@@ -39,4 +39,6 @@ export function handleRewardDistributionFinished(
     builderEntity.rewardShares = gauge.rewardShares();
     builderEntity.save();
   }
+
+  updateBlockInfo(event, ["Builder", "Cycle"]);
 }
