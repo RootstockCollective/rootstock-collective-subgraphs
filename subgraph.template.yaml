@@ -1,9 +1,34 @@
-specVersion: 1.0.0
+specVersion: 1.3.0
 indexerHints:
   prune: auto
 schema:
   file: ./schema.graphql
 dataSources:
+  - kind: ethereum
+    name: BackersManagerRootstockCollectiveV1
+    network: {{network}}
+    source:
+      address: "{{backersManager.address}}"
+      abi: BackersManagerRootstockCollectiveV1
+      startBlock: {{backersManager.startBlock}}
+      endBlock: {{backersManager.migrationV2}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/backers-manager-rootstock-collective-v1.ts
+      entities:
+        - Builder
+        - BuilderState
+        - GaugeToBuilder
+      abis:
+        - name: BackersManagerRootstockCollectiveV1
+          file: ./abis/deprecated/BackersManagerRootstockCollective.json
+      eventHandlers:
+        - event: GaugeCreated(indexed address,indexed address,address)
+          handler: handleGaugeCreated
+        - event: Whitelisted(indexed address)
+          handler: handleWhitelisted
   - kind: ethereum
     name: BackersManagerRootstockCollective
     network: {{network}}
@@ -13,15 +38,163 @@ dataSources:
       startBlock: {{backersManager.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
+      file: ./src/backers-manager-rootstock-collective.ts
       entities:
         - BackerStakingHistory
         - GaugeStakingHistory
+        - Backer
+        - BackerToBuilder
+        - Cycle
+        - ContractConfig
       abis:
         - name: BackersManagerRootstockCollective
           file: ./abis/BackersManagerRootstockCollective.json
       eventHandlers:
+        - event: BackerRewardsOptedIn(indexed address)
+          handler: handleBackerRewardsOptedIn
+        - event: BackerRewardsOptedOut(indexed address)
+          handler: handleBackerRewardsOptedOut
         - event: NewAllocation(indexed address,indexed address,uint256)
           handler: handleNewAllocation
-      file: ./src/backers-manager-rootstock-collective.ts
+        - event: RewardDistributionStarted(indexed address)
+          handler: handleRewardDistributionStarted
+        - event: RewardDistributionFinished(indexed address)
+          handler: handleRewardDistributionFinished
+        - event: Upgraded(indexed address)
+          handler: handleUpgraded
+  - kind: ethereum
+    name: BuilderRegistryRootstockCollectiveV2
+    network: {{network}}
+    source:
+      address: "{{builderRegistry.address}}"
+      abi: BuilderRegistryRootstockCollectiveV2
+      startBlock: {{builderRegistry.startBlock}}
+      endBlock: {{builderRegistry.migrationV3}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/builder-registry-rootstock-collective.ts
+      entities:
+        - Builder
+        - BuilderState
+      abis:
+        - name: BuilderRegistryRootstockCollectiveV2
+          file: ./abis/deprecated/BuilderRegistryRootstockCollective.json
+      eventHandlers:
+        - event: BuilderActivated(indexed address,address,uint64)
+          handler: handleBuilderInitialized
+        - event: BuilderRewardReceiverReplacementApproved(indexed address,address)
+          handler: handleRewardReceiverUpdated
+        - event: CommunityApproved(indexed address)
+          handler: handleCommunityApproved
+        - event: Dewhitelisted(indexed address)
+          handler: handleCommunityBanned
+        - event: GaugeCreated(indexed address,indexed address,address)
+          handler: handleGaugeCreated
+        - event: KYCApproved(indexed address)
+          handler: handleKYCApproved
+        - event: KYCRevoked(indexed address)
+          handler: handleKYCRevoked
+        - event: Paused(indexed address,bytes20)
+          handler: handleKYCPaused
+        - event: Unpaused(indexed address)
+          handler: handleKYCResumed
+        - event: Revoked(indexed address)
+          handler: handleSelfPaused
+        - event: Permitted(indexed address,uint256,uint256)
+          handler: handleSelfResumed
+  - kind: ethereum
+    name: BuilderRegistryRootstockCollective
+    network: {{network}}
+    source:
+      address: "{{builderRegistry.address}}"
+      abi: BuilderRegistryRootstockCollective
+      startBlock: {{builderRegistry.migrationV3}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/builder-registry-rootstock-collective.ts
+      entities:
+        - Builder
+        - BuilderState
+        - ContractConfig
+        - GaugeToBuilder
+      abis:
+        - name: BuilderRegistryRootstockCollective
+          file: ./abis/BuilderRegistryRootstockCollective.json
+      eventHandlers:
+        - event: BuilderInitialized(indexed address,address,uint64)
+          handler: handleBuilderInitialized
+        - event: RewardReceiverUpdated(indexed address,address)
+          handler: handleRewardReceiverUpdated
+        - event: CommunityApproved(indexed address)
+          handler: handleCommunityApproved
+        - event: CommunityBanned(indexed address)
+          handler: handleCommunityBanned
+        - event: GaugeCreated(indexed address,indexed address,address)
+          handler: handleGaugeCreated
+        - event: KYCApproved(indexed address)
+          handler: handleKYCApproved
+        - event: KYCRevoked(indexed address)
+          handler: handleKYCRevoked
+        - event: KYCPaused(indexed address,bytes20)
+          handler: handleKYCPaused
+        - event: KYCResumed(indexed address)
+          handler: handleKYCResumed
+        - event: SelfPaused(indexed address)
+          handler: handleSelfPaused
+        - event: SelfResumed(indexed address,uint256,uint256)
+          handler: handleSelfResumed
+        - event: Upgraded(indexed address)
+          handler: handleUpgraded
+  - kind: ethereum
+    name: RewardDistributorRootstockCollective
+    network: {{network}}
+    source:
+      address: "{{rewardDistributor.address}}"
+      abi: RewardDistributorRootstockCollective
+      startBlock: {{rewardDistributor.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/reward-distributor-rootstock-collective.ts
+      entities:
+        - ContractConfig
+      abis:
+        - name: RewardDistributorRootstockCollective
+          file: ./abis/RewardDistributorRootstockCollective.json
+      eventHandlers:
+        - event: Upgraded(indexed address)
+          handler: handleUpgraded
+templates:
+  - kind: ethereum
+    name: GaugeRootstockCollective
+    network: {{network}}
+    source:
+      abi: GaugeRootstockCollective
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/gauge-rootstock-collective.ts
+      entities:
+        - Backer
+        - BackersRewardsClaimed
+        - Builder
+        - BuilderRewardsClaimed
+        - BackerToBuilder
+        - BackerToBuilderRewardsClaimed
+        - GaugeToBuilder
+      abis:
+        - name: GaugeRootstockCollective
+          file: ./abis/GaugeRootstockCollective.json
+      eventHandlers:
+        - event: BackerRewardsClaimed(indexed address,indexed address,uint256)
+          handler: handleBackerRewardsClaimed
+        - event: BuilderRewardsClaimed(indexed address,indexed address,uint256)
+          handler: handleBuilderRewardsClaimed
