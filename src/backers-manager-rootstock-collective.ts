@@ -1,21 +1,9 @@
 import { NewAllocation as NewAllocationEvent } from "../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
-import { BackerStakingHistory, GaugeStakingHistory, NewAllocation } from "../generated/schema";
+import { BackerStakingHistory, GaugeStakingHistory } from "../generated/schema";
 import { BackersManagerRootstockCollective as BackersManagerRootstockCollectiveContract } from "../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
 import { BigInt } from "@graphprotocol/graph-ts";
 
 export function handleNewAllocation(event: NewAllocationEvent): void {
-  let entity = new NewAllocation(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.backer_ = event.params.backer_;
-  entity.gauge_ = event.params.gauge_;
-  entity.allocation_ = event.params.allocation_;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
 
   const backerAddress = event.params.backer_;
   const backersManagerContract = BackersManagerRootstockCollectiveContract.bind(
