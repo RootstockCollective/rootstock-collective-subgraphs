@@ -21,6 +21,8 @@ dataSources:
         - Builder
         - BuilderState
         - GaugeToBuilder
+        - ContractConfig
+        - BlockChangeLog
       abis:
         - name: BackersManagerRootstockCollectiveV1
           file: ./abis/deprecated/BackersManagerRootstockCollective.json
@@ -68,6 +70,7 @@ dataSources:
         - BackerToBuilder
         - Cycle
         - ContractConfig
+        - BlockChangeLog
       abis:
         - name: BackersManagerRootstockCollective
           file: ./abis/BackersManagerRootstockCollective.json
@@ -105,6 +108,8 @@ dataSources:
         - Builder
         - BuilderState
         - GaugeToBuilder
+        - ContractConfig
+        - BlockChangeLog
       abis:
         - name: BuilderRegistryRootstockCollectiveV2
           file: ./abis/deprecated/BuilderRegistryRootstockCollective.json
@@ -149,8 +154,9 @@ dataSources:
       entities:
         - Builder
         - BuilderState
-        - ContractConfig
         - GaugeToBuilder
+        - ContractConfig
+        - BlockChangeLog
       abis:
         - name: BuilderRegistryRootstockCollective
           file: ./abis/BuilderRegistryRootstockCollective.json
@@ -195,6 +201,7 @@ dataSources:
       file: ./src/rewardDistributor/index.ts
       entities:
         - ContractConfig
+        - BlockChangeLog
       abis:
         - name: RewardDistributorRootstockCollective
           file: ./abis/RewardDistributorRootstockCollective.json
@@ -220,6 +227,8 @@ templates:
         - BackerToBuilder
         - BackerToBuilderRewardsClaimed
         - GaugeToBuilder
+        - ContractConfig
+        - BlockChangeLog
       abis:
         - name: GaugeRootstockCollective
           file: ./abis/GaugeRootstockCollective.json

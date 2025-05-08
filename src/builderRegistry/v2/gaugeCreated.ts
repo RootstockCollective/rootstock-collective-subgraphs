@@ -2,5 +2,5 @@ import { GaugeCreated as GaugeCreatedEvent } from "../../../generated/BuilderReg
 import { gaugeCreated } from "../../shared";
 
 export function handleGaugeCreated(event: GaugeCreatedEvent): void {
-  gaugeCreated(event.params.builder_, event.params.gauge_);
+  gaugeCreated(event.params.builder_, event.params.gauge_, event);
 }

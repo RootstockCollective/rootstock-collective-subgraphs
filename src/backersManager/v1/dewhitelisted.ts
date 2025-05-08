@@ -2,5 +2,5 @@ import { Dewhitelisted as DewhitelistedEvent } from "../../../generated/BuilderR
 import { communityBanned } from "../../shared";
 
 export function handleDewhitelisted(event: DewhitelistedEvent): void {
-  communityBanned(event.params.builder_);
+  communityBanned(event.params.builder_, event);
 }

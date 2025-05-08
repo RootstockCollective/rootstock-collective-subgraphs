@@ -2,7 +2,7 @@ import { RewardDistributionStarted as RewardDistributionStartedEvent } from "../
 import { ContractConfig } from "../../generated/schema";
 import { RewardDistributorRootstockCollective as RewardDistributorRootstockCollectiveContract } from "../../generated/RewardDistributorRootstockCollective/RewardDistributorRootstockCollective";
 import { Address } from "@graphprotocol/graph-ts";
-import { loadOrCreateCycle, CONTRACT_CONFIG_ID, logEntityNotFound } from "../utils";
+import { loadOrCreateCycle, CONTRACT_CONFIG_ID, logEntityNotFound, updateBlockInfo } from "../utils";
 
 export function handleRewardDistributionStarted(
   event: RewardDistributionStartedEvent
@@ -25,4 +25,6 @@ export function handleRewardDistributionStarted(
   cycle.rewardsERC20 = rewardDistributor.defaultRewardTokenAmount();
   cycle.rewardsRBTC = rewardDistributor.defaultRewardCoinbaseAmount();
   cycle.save();
+
+  updateBlockInfo(event, ["Cycle"]);
 }

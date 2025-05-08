@@ -8,13 +8,15 @@ import {
   BackerToBuilderRewardsClaimed,
   GaugeToBuilder,
 } from "../../generated/schema";
-import { DEFAULT_BIGINT, logEntityNotFound } from "../utils";
+import { DEFAULT_BIGINT, logEntityNotFound, updateBlockInfo } from "../utils";
 
 export function handleBackerRewardsClaimed(
   event: BackerRewardsClaimedEvent
 ): void {
   _handleBacker(event);
   _handleBackerToBuilder(event);
+  
+  updateBlockInfo(event, ["BackerRewardsClaimed", "BackerToBuilderRewardsClaimed"]);
 }
 
 function _handleBacker(event: BackerRewardsClaimedEvent): void {

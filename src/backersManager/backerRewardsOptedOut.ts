@@ -1,6 +1,6 @@
 import { BackerRewardsOptedOut as BackerRewardsOptedOutEvent } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
 import { Backer } from "../../generated/schema";
-import { DEFAULT_BIGINT } from "../utils";
+import { DEFAULT_BIGINT, updateBlockInfo } from "../utils";
 
 export function handleBackerRewardsOptedOut(
   event: BackerRewardsOptedOutEvent
@@ -12,4 +12,6 @@ export function handleBackerRewardsOptedOut(
   }
   backer.isBlacklisted = true;
   backer.save();
+
+  updateBlockInfo(event, ["Backer"]);
 }

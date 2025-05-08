@@ -1,5 +1,7 @@
 import { BigInt, Bytes, BigDecimal, Address, log } from "@graphprotocol/graph-ts";
-import { BackerRewardPercentage, Builder, BuilderState, Cycle } from "../generated/schema";
+import { BackerRewardPercentage, BlockChangeLog, Builder, BuilderState, Cycle, GaugeToBuilder } from "../generated/schema";
+import { ContractConfig } from "../generated/schema";
+import { ethereum } from "@graphprotocol/graph-ts";
 
 export function loadOrCreateBuilder(builder: Address): Builder {
   let builderEntity = Builder.load(builder);
@@ -61,6 +63,18 @@ export function loadOrCreateCycle(backersManager: Address): Cycle {
   return cycle;
 }
 
+export function loadOrCreateBlockChangeLog(blockHash: Bytes): BlockChangeLog {
+  let blockChangeLog = BlockChangeLog.load(blockHash);
+  if (blockChangeLog == null) {
+    blockChangeLog = new BlockChangeLog(blockHash);
+    blockChangeLog.blockNumber = DEFAULT_BIGINT;
+    blockChangeLog.blockTimestamp = DEFAULT_BIGINT;
+    blockChangeLog.updatedEntities = [];
+  }
+
+  return blockChangeLog;
+}
+
 export function logEntityNotFound(entityType: string, entityId: string, context: string): void {
   log.warning(
     `[Entity Not Found] type: ${entityType}, id: ${entityId}, function: ${context}`,
@@ -73,3 +87,47 @@ export const DEFAULT_BIGINT = BigInt.zero();
 export const DEFAULT_BYTES = Bytes.empty();
 export const DEFAULT_DECIMAL = BigDecimal.zero();
 export const CONTRACT_CONFIG_ID = Bytes.fromUTF8("default");
+
+export function updateBlockInfo(event: ethereum.Event, entityNames: string[]): void {
+  let blockChangeLog = BlockChangeLog.load(event.block.hash);
+  if (blockChangeLog == null) {
+    blockChangeLog = new BlockChangeLog(event.block.hash);
+    blockChangeLog.blockNumber = event.block.number;
+    blockChangeLog.blockTimestamp = event.block.timestamp;
+    blockChangeLog.updatedEntities = [];
+  }
+  
+  const updatedEntities = blockChangeLog.updatedEntities;
+  for (let i = 0; i < entityNames.length; i++) {
+    const entityName = entityNames[i];
+    if (!updatedEntities.includes(entityName)) {
+      updatedEntities.push(entityName);
+    }
+  }
+  blockChangeLog.updatedEntities = updatedEntities;
+  blockChangeLog.save();
+
+  // Update ContractConfig block information
+  const contractConfig = ContractConfig.load(CONTRACT_CONFIG_ID);
+  if (contractConfig == null) {
+    logEntityNotFound('ContractConfig', CONTRACT_CONFIG_ID.toString(), 'Utils.updateBlockChangeLog');
+    return;
+  }
+  contractConfig.blockNumber = event.block.number;
+  contractConfig.blockTimestamp = event.block.timestamp;
+  contractConfig.blockHash = event.block.hash;
+  contractConfig.save();
+}
+
+export function updateContractConfig(event: ethereum.Event): void {
+  const contractConfig = ContractConfig.load(CONTRACT_CONFIG_ID);
+  if (contractConfig == null) {
+    logEntityNotFound('ContractConfig', CONTRACT_CONFIG_ID.toString(), 'Utils.updateContractConfig');
+    return;
+  }
+  
+  contractConfig.blockNumber = event.block.number;
+  contractConfig.blockTimestamp = event.block.timestamp;
+  contractConfig.blockHash = event.block.hash;
+  contractConfig.save();
+}

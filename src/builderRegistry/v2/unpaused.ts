@@ -2,5 +2,5 @@ import { Unpaused as UnpausedEvent } from "../../../generated/BuilderRegistryRoo
 import { kycResumed } from "../../shared";
 
 export function handleUnpaused(event: UnpausedEvent): void {
-  kycResumed(event.params.builder_);
+  kycResumed(event.params.builder_, event);
 }

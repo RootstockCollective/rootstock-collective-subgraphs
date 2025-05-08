@@ -1,6 +1,6 @@
 import { RewardSharesUpdated as RewardSharesUpdatedEvent } from "../../generated/templates/GaugeRootstockCollective/GaugeRootstockCollective";
 import { Builder, GaugeToBuilder } from "../../generated/schema";
-import { logEntityNotFound } from "../utils";
+import { logEntityNotFound, updateBlockInfo } from "../utils";
 
 export function handleRewardSharesUpdated(
   event: RewardSharesUpdatedEvent
@@ -19,4 +19,6 @@ export function handleRewardSharesUpdated(
 
   builder.rewardShares = event.params.rewardShares_;
   builder.save();
+
+  updateBlockInfo(event, ["Builder"]);
 }
