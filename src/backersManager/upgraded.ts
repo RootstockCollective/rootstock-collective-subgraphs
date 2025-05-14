@@ -1,5 +1,5 @@
-import { Upgraded as UpgradedEvent } from "../generated/RewardDistributorRootstockCollective/RewardDistributorRootstockCollective";
-import { ContractConfig } from "../generated/schema";
+import { Upgraded as UpgradedEvent } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
+import { ContractConfig } from "../../generated/schema";
 import { Bytes } from "@graphprotocol/graph-ts";
 
 export function handleUpgraded(event: UpgradedEvent): void {
@@ -7,10 +7,10 @@ export function handleUpgraded(event: UpgradedEvent): void {
   let contractConfig = ContractConfig.load(id);
   if (contractConfig == null) {
     contractConfig = new ContractConfig(id);
-    contractConfig.backersManager_ = Bytes.empty();
     contractConfig.builderRegistry_ = Bytes.empty();
+    contractConfig.rewardDistributor_ = Bytes.empty();
   }
-  contractConfig.rewardDistributor_ = event.address;
+  contractConfig.backersManager_ = event.address;
 
   contractConfig.save();
 }

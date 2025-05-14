@@ -67,7 +67,7 @@ type Backer @entity(immutable: false) {
   id: Bytes!
   isBlacklisted_: Boolean!
   totalAllocation_: BigInt!
-  builder_: [BackerToBuilder!] @derivedFrom(field: "backer_")
+  builders_: [BackerToBuilder!] @derivedFrom(field: "backer_")
   rewardsClaimed_: [BackersRewardsClaimed!] @derivedFrom(field: "backer_")
 }
 

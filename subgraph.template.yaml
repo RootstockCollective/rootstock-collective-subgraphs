@@ -16,7 +16,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.9
       language: wasm/assemblyscript
-      file: ./src/backers-manager-rootstock-collective-v1.ts
+      file: ./src/backersManager/v1/index.ts
       entities:
         - Builder
         - BuilderState
@@ -40,7 +40,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.9
       language: wasm/assemblyscript
-      file: ./src/backers-manager-rootstock-collective.ts
+      file: ./src/backersManager/index.ts
       entities:
         - BackerStakingHistory
         - GaugeStakingHistory
@@ -51,6 +51,8 @@ dataSources:
       abis:
         - name: BackersManagerRootstockCollective
           file: ./abis/BackersManagerRootstockCollective.json
+        - name: RewardDistributorRootstockCollective
+          file: ./abis/RewardDistributorRootstockCollective.json
       eventHandlers:
         - event: BackerRewardsOptedIn(indexed address)
           handler: handleBackerRewardsOptedIn
@@ -76,7 +78,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.9
       language: wasm/assemblyscript
-      file: ./src/builder-registry-rootstock-collective.ts
+      file: ./src/builderRegistry/v2/index.ts
       entities:
         - Builder
         - BuilderState
@@ -85,13 +87,13 @@ dataSources:
           file: ./abis/deprecated/BuilderRegistryRootstockCollective.json
       eventHandlers:
         - event: BuilderActivated(indexed address,address,uint64)
-          handler: handleBuilderInitialized
+          handler: handleBuilderActivated
         - event: BuilderRewardReceiverReplacementApproved(indexed address,address)
-          handler: handleRewardReceiverUpdated
+          handler: handleBuilderRewardReceiverReplacementApproved
         - event: CommunityApproved(indexed address)
           handler: handleCommunityApproved
         - event: Dewhitelisted(indexed address)
-          handler: handleCommunityBanned
+          handler: handleDewhitelisted
         - event: GaugeCreated(indexed address,indexed address,address)
           handler: handleGaugeCreated
         - event: KYCApproved(indexed address)
@@ -99,13 +101,13 @@ dataSources:
         - event: KYCRevoked(indexed address)
           handler: handleKYCRevoked
         - event: Paused(indexed address,bytes20)
-          handler: handleKYCPaused
+          handler: handlePaused
         - event: Unpaused(indexed address)
-          handler: handleKYCResumed
+          handler: handleUnpaused
         - event: Revoked(indexed address)
-          handler: handleSelfPaused
+          handler: handleRevoked
         - event: Permitted(indexed address,uint256,uint256)
-          handler: handleSelfResumed
+          handler: handlePermitted
   - kind: ethereum
     name: BuilderRegistryRootstockCollective
     network: {{network}}
@@ -117,7 +119,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.9
       language: wasm/assemblyscript
-      file: ./src/builder-registry-rootstock-collective.ts
+      file: ./src/builderRegistry/index.ts
       entities:
         - Builder
         - BuilderState
@@ -162,7 +164,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.9
       language: wasm/assemblyscript
-      file: ./src/reward-distributor-rootstock-collective.ts
+      file: ./src/rewardDistributor/index.ts
       entities:
         - ContractConfig
       abis:
@@ -181,7 +183,7 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.9
       language: wasm/assemblyscript
-      file: ./src/gauge-rootstock-collective.ts
+      file: ./src/gauge/index.ts
       entities:
         - Backer
         - BackersRewardsClaimed
