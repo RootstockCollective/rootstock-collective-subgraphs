@@ -8,7 +8,7 @@ import {
   BackerToBuilderRewardsClaimed,
   GaugeToBuilder,
 } from "../../generated/schema";
-import { BigInt } from "@graphprotocol/graph-ts";
+import { DEFAULT_BIGINT } from "../utils";
 
 export function handleBackerRewardsClaimed(
   event: BackerRewardsClaimedEvent
@@ -27,14 +27,13 @@ function _handleBacker(event: BackerRewardsClaimedEvent): void {
   let rewardsClaimed = BackersRewardsClaimed.load(rewardsClaimedId);
   if (rewardsClaimed == null) {
     rewardsClaimed = new BackersRewardsClaimed(rewardsClaimedId);
-    rewardsClaimed.amount_ = BigInt.zero();
+    rewardsClaimed.amount = DEFAULT_BIGINT;
   }
-  rewardsClaimed.backer_ = event.params.backer_;
-  rewardsClaimed.token_ = event.params.rewardToken_;
-  rewardsClaimed.amount_ = rewardsClaimed.amount_.plus(event.params.amount_);
+  rewardsClaimed.backer = event.params.backer_;
+  rewardsClaimed.token = event.params.rewardToken_;
+  rewardsClaimed.amount = rewardsClaimed.amount.plus(event.params.amount_);
 
   rewardsClaimed.save();
-  backer.save();
 }
 
 function _handleBackerToBuilder(event: BackerRewardsClaimedEvent): void {
@@ -42,7 +41,7 @@ function _handleBackerToBuilder(event: BackerRewardsClaimedEvent): void {
   if (gaugeToBuilder == null) return;
 
   const backerToBuilderId = event.params.backer_.concat(
-    gaugeToBuilder.builder_
+    gaugeToBuilder.builder
   );
   const backerToBuilder = BackerToBuilder.load(backerToBuilderId);
   if (backerToBuilder == null) return;
@@ -51,12 +50,11 @@ function _handleBackerToBuilder(event: BackerRewardsClaimedEvent): void {
   let rewardsClaimed = BackerToBuilderRewardsClaimed.load(rewardsClaimedId);
   if (rewardsClaimed == null) {
     rewardsClaimed = new BackerToBuilderRewardsClaimed(rewardsClaimedId);
-    rewardsClaimed.amount_ = BigInt.zero();
+    rewardsClaimed.amount = DEFAULT_BIGINT;
   }
-  rewardsClaimed.backerToBuilder_ = backerToBuilderId;
-  rewardsClaimed.token_ = event.params.rewardToken_;
-  rewardsClaimed.amount_ = rewardsClaimed.amount_.plus(event.params.amount_);
+  rewardsClaimed.backerToBuilder = backerToBuilderId;
+  rewardsClaimed.token = event.params.rewardToken_;
+  rewardsClaimed.amount = rewardsClaimed.amount.plus(event.params.amount_);
 
   rewardsClaimed.save();
-  backerToBuilder.save();
 }

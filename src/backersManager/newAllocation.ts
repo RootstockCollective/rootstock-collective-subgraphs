@@ -5,12 +5,17 @@ import {
   Backer,
   BackerToBuilder,
   GaugeToBuilder,
+  Builder,
 } from "../../generated/schema";
 import { BackersManagerRootstockCollective as BackersManagerRootstockCollectiveContract } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
-import { BigInt } from "@graphprotocol/graph-ts";
+import { GaugeRootstockCollective as GaugeRootstockCollectiveContract } from "../../generated/templates/GaugeRootstockCollective/GaugeRootstockCollective";
+import { DEFAULT_BIGINT } from "../utils";
+import { Address, BigInt } from "@graphprotocol/graph-ts";
+
 
 export function handleNewAllocation(event: NewAllocationEvent): void {
   _handleBackerStakingHistory(event);
+  _handleBuilder(event);
   _handleBacker(event);
   _handleBackerToBuilder(event);
 }
@@ -24,22 +29,22 @@ function _handleBackerStakingHistory(event: NewAllocationEvent): void {
     backersManagerContract.backerTotalAllocation(backerAddress);
 
   let backer = BackerStakingHistory.load(backerAddress);
-  const zero = BigInt.zero();
+
   if (backer == null) {
     backer = new BackerStakingHistory(backerAddress);
-    backer.accumulatedTime_ = zero;
-    backer.backerTotalAllocation_ = zero;
+    backer.accumulatedTime = DEFAULT_BIGINT;
+    backer.backerTotalAllocation = DEFAULT_BIGINT;
   }
 
-  if (backer.backerTotalAllocation_.gt(zero)) {
+  if (backer.backerTotalAllocation.gt(DEFAULT_BIGINT)) {
     const lastStakedSeconds = event.block.timestamp.minus(
-      backer.lastBlockTimestamp_
+      backer.lastBlockTimestamp
     );
-    backer.accumulatedTime_ = backer.accumulatedTime_.plus(lastStakedSeconds);
+    backer.accumulatedTime = backer.accumulatedTime.plus(lastStakedSeconds);
   }
-  backer.lastBlockNumber_ = event.block.number;
-  backer.lastBlockTimestamp_ = event.block.timestamp;
-  backer.backerTotalAllocation_ = backerTotalAllocation;
+  backer.lastBlockNumber = event.block.number;
+  backer.lastBlockTimestamp = event.block.timestamp;
+  backer.backerTotalAllocation = backerTotalAllocation;
 
   backer.save();
 
@@ -47,51 +52,83 @@ function _handleBackerStakingHistory(event: NewAllocationEvent): void {
   let gauge = GaugeStakingHistory.load(gaugeId);
   if (gauge == null) {
     gauge = new GaugeStakingHistory(gaugeId);
-    gauge.gauge_ = event.params.gauge_;
-    gauge.accumulatedAllocationsTime_ = zero;
-    gauge.backer_ = backerAddress;
+    gauge.gauge = event.params.gauge_;
+    gauge.accumulatedAllocationsTime = DEFAULT_BIGINT;
+    gauge.backer = backerAddress;
   } else {
     const lastStakedSeconds = event.block.timestamp.minus(
-      gauge.lastBlockTimestamp_
+      gauge.lastBlockTimestamp
     );
-    gauge.accumulatedAllocationsTime_ = gauge.accumulatedAllocationsTime_.plus(
-      gauge.allocation_.times(lastStakedSeconds)
+    gauge.accumulatedAllocationsTime = gauge.accumulatedAllocationsTime.plus(
+      gauge.allocation.times(lastStakedSeconds)
     );
   }
-  gauge.allocation_ = event.params.allocation_;
-  gauge.lastBlockNumber_ = event.block.number;
-  gauge.lastBlockTimestamp_ = event.block.timestamp;
+  gauge.allocation = event.params.allocation_;
+  gauge.lastBlockNumber = event.block.number;
+  gauge.lastBlockTimestamp = event.block.timestamp;
 
   gauge.save();
+}
+
+function _getPreviousAllocation(gaugeToBuilder: GaugeToBuilder, backer: Address): BigInt {
+  let previousAllocation = DEFAULT_BIGINT;
+  const backerToBuilder = BackerToBuilder.load(
+    backer.concat(gaugeToBuilder.builder)
+  );
+  if (backerToBuilder != null) {
+    previousAllocation = backerToBuilder.totalAllocation;
+  }
+
+  return previousAllocation;
+}
+
+function _handleBuilder(event: NewAllocationEvent): void {
+  const gaugeToBuilder = GaugeToBuilder.load(event.params.gauge_);
+  if (gaugeToBuilder == null) return;
+
+  const builder = Builder.load(gaugeToBuilder.builder);
+  if (builder == null) return;
+
+  const previousAllocation = _getPreviousAllocation(gaugeToBuilder, event.params.backer_);
+  builder.totalAllocation = builder.totalAllocation.minus(previousAllocation).plus(event.params.allocation_);
+
+  const gaugeContract = GaugeRootstockCollectiveContract.bind(event.params.gauge_);
+  builder.rewardShares = gaugeContract.rewardShares();
+
+  builder.save();
 }
 
 function _handleBacker(event: NewAllocationEvent): void {
   let backer = Backer.load(event.params.backer_);
   if (backer == null) {
     backer = new Backer(event.params.backer_);
-    backer.isBlacklisted_ = false;
+    backer.totalAllocation = DEFAULT_BIGINT;
+    backer.isBlacklisted = false;
   }
-  backer.totalAllocation_ = event.params.allocation_;
+  const gaugeToBuilder = GaugeToBuilder.load(event.params.gauge_);
+  if (gaugeToBuilder == null) return;
+
+  const previousAllocation = _getPreviousAllocation(gaugeToBuilder, event.params.backer_);
+  backer.totalAllocation = backer.totalAllocation.minus(previousAllocation).plus(event.params.allocation_);
 
   backer.save();
 }
 
 function _handleBackerToBuilder(event: NewAllocationEvent): void {
-  const gaugeToBuilder = GaugeToBuilder.load(event.address);
+  const gaugeToBuilder = GaugeToBuilder.load(event.params.gauge_);
   if (gaugeToBuilder == null) return;
 
   let backerToBuilder = BackerToBuilder.load(
-    event.params.backer_.concat(gaugeToBuilder.builder_)
+    event.params.backer_.concat(gaugeToBuilder.builder)
   );
   if (backerToBuilder == null) {
     backerToBuilder = new BackerToBuilder(
-      event.params.backer_.concat(event.params.gauge_)
+      event.params.backer_.concat(gaugeToBuilder.builder)
     );
-    backerToBuilder.backer_ = event.params.backer_;
-    backerToBuilder.builder_ = event.params.gauge_;
-    backerToBuilder.totalAllocation_ = BigInt.zero();
+    backerToBuilder.backer = event.params.backer_;
+    backerToBuilder.builder = gaugeToBuilder.builder;
   }
-  backerToBuilder.totalAllocation_ = event.params.allocation_;
+  backerToBuilder.totalAllocation = event.params.allocation_;
 
   backerToBuilder.save();
 }

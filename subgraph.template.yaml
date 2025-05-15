@@ -21,6 +21,7 @@ dataSources:
         - Builder
         - BuilderState
         - GaugeToBuilder
+        - BuilderToGauge
       abis:
         - name: BackersManagerRootstockCollectiveV1
           file: ./abis/deprecated/BackersManagerRootstockCollective.json
@@ -29,6 +30,10 @@ dataSources:
           handler: handleGaugeCreated
         - event: Whitelisted(indexed address)
           handler: handleWhitelisted
+        - event: BuilderActivated(indexed address,address,uint64)
+          handler: handleBuilderActivated
+        - event: CommunityApproved(indexed address)
+          handler: handleCommunityApproved
   - kind: ethereum
     name: BackersManagerRootstockCollective
     network: {{network}}
@@ -53,6 +58,8 @@ dataSources:
           file: ./abis/BackersManagerRootstockCollective.json
         - name: RewardDistributorRootstockCollective
           file: ./abis/RewardDistributorRootstockCollective.json
+        - name: GaugeRootstockCollective
+          file: ./abis/GaugeRootstockCollective.json
       eventHandlers:
         - event: BackerRewardsOptedIn(indexed address)
           handler: handleBackerRewardsOptedIn
@@ -73,7 +80,7 @@ dataSources:
       address: "{{builderRegistry.address}}"
       abi: BuilderRegistryRootstockCollectiveV2
       startBlock: {{builderRegistry.startBlock}}
-      endBlock: {{builderRegistry.migrationV3}}
+      #endBlock: {{builderRegistry.migrationV3}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
@@ -82,6 +89,8 @@ dataSources:
       entities:
         - Builder
         - BuilderState
+        - GaugeToBuilder
+        - BuilderToGauge
       abis:
         - name: BuilderRegistryRootstockCollectiveV2
           file: ./abis/deprecated/BuilderRegistryRootstockCollective.json
@@ -125,6 +134,7 @@ dataSources:
         - BuilderState
         - ContractConfig
         - GaugeToBuilder
+        - BuilderToGauge
       abis:
         - name: BuilderRegistryRootstockCollective
           file: ./abis/BuilderRegistryRootstockCollective.json

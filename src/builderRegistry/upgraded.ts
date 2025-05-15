@@ -7,10 +7,10 @@ export function handleUpgraded(event: UpgradedEvent): void {
   let contractConfig = ContractConfig.load(id);
   if (contractConfig == null) {
     contractConfig = new ContractConfig(id);
-    contractConfig.backersManager_ = Bytes.empty();
-    contractConfig.rewardDistributor_ = Bytes.empty();
+    contractConfig.backersManager = Bytes.empty();
+    contractConfig.rewardDistributor = Bytes.empty();
   }
-  contractConfig.builderRegistry_ = event.address;
+  contractConfig.builderRegistry = event.address;
 
   contractConfig.save();
 }

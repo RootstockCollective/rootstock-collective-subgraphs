@@ -1,5 +1,5 @@
 import { BuilderInitialized as BuilderInitializedEvent } from "../../generated/BuilderRegistryRootstockCollective/BuilderRegistryRootstockCollective";
-import { builderInitialized } from "./utils";
+import { builderInitialized } from "../shared";
 
 export function handleBuilderInitialized(event: BuilderInitializedEvent): void {
   builderInitialized(

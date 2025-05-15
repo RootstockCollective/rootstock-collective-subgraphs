@@ -1,5 +1,5 @@
 import { BuilderRewardReceiverReplacementApproved as BuilderRewardReceiverReplacementApprovedEvent } from "../../../generated/BuilderRegistryRootstockCollectiveV2/BuilderRegistryRootstockCollectiveV2";
-import { rewardReceiverUpdated } from "../utils";
+import { rewardReceiverUpdated } from "../shared";
 
 export function handleBuilderRewardReceiverReplacementApproved(
   event: BuilderRewardReceiverReplacementApprovedEvent

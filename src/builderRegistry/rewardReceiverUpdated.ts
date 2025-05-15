@@ -1,5 +1,5 @@
 import { RewardReceiverUpdated as RewardReceiverUpdatedEvent } from "../../generated/BuilderRegistryRootstockCollective/BuilderRegistryRootstockCollective";
-import { rewardReceiverUpdated } from "./utils";
+import { rewardReceiverUpdated } from "./shared";
 
 export function handleRewardReceiverUpdated(
   event: RewardReceiverUpdatedEvent

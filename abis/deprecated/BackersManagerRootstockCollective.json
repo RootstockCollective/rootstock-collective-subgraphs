@@ -36,5 +36,43 @@
             }
         ],
         "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "CommunityApproved",
+        "inputs": [
+            {
+                "name": "builder_",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "BuilderActivated",
+        "inputs": [
+            {
+                "name": "builder_",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "rewardReceiver_",
+                "type": "address",
+                "indexed": false,
+                "internalType": "address"
+            },
+            {
+                "name": "rewardPercentage_",
+                "type": "uint64",
+                "indexed": false,
+                "internalType": "uint64"
+            }
+        ],
+        "anonymous": false
     }
 ]

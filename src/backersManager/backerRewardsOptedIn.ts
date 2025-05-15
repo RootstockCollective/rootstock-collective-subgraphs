@@ -1,6 +1,6 @@
 import { BackerRewardsOptedIn as BackerRewardsOptedInEvent } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
 import { Backer } from "../../generated/schema";
-import { BigInt } from "@graphprotocol/graph-ts";
+import { DEFAULT_BIGINT } from "../utils";
 
 export function handleBackerRewardsOptedIn(
   event: BackerRewardsOptedInEvent
@@ -8,9 +8,9 @@ export function handleBackerRewardsOptedIn(
   let backer = Backer.load(event.params.backer_);
   if (backer == null) {
     backer = new Backer(event.params.backer_);
-    backer.totalAllocation_ = BigInt.zero();
+    backer.totalAllocation = DEFAULT_BIGINT;
   }
-  backer.isBlacklisted_ = false;
+  backer.isBlacklisted = false;
 
   backer.save();
 }

@@ -1,4 +1,4 @@
-import { CommunityApproved as CommunityApprovedEvent } from "../../../generated/BuilderRegistryRootstockCollectiveV2/BuilderRegistryRootstockCollectiveV2";
+import { CommunityApproved as CommunityApprovedEvent } from "../../../generated/BackersManagerRootstockCollectiveV1/BackersManagerRootstockCollectiveV1";
 import { communityApproved } from "../../shared";
 
 export function handleCommunityApproved(event: CommunityApprovedEvent): void {

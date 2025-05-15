@@ -1,7 +1,8 @@
 import { RewardDistributionStarted as RewardDistributionStartedEvent } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
 import { Cycle, ContractConfig } from "../../generated/schema";
 import { RewardDistributorRootstockCollective as RewardDistributorRootstockCollectiveContract } from "../../generated/RewardDistributorRootstockCollective/RewardDistributorRootstockCollective";
-import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { Address, Bytes } from "@graphprotocol/graph-ts";
+import { DEFAULT_BIGINT } from "../utils";
 
 export function handleRewardDistributionStarted(
   event: RewardDistributionStartedEvent
@@ -9,24 +10,24 @@ export function handleRewardDistributionStarted(
   let cycle = Cycle.load(event.address);
   if (cycle == null) {
     cycle = new Cycle(event.address);
-    cycle.totalPotentialReward_ = BigInt.zero();
-    cycle.periodFinish_ = BigInt.zero();
-    cycle.cycleDuration_ = BigInt.zero();
-    cycle.distributionDuration_ = BigInt.zero();
+    cycle.totalPotentialReward = DEFAULT_BIGINT;
+    cycle.periodFinish = DEFAULT_BIGINT;
+    cycle.cycleDuration = DEFAULT_BIGINT;
+    cycle.distributionDuration = DEFAULT_BIGINT;
   }
-  cycle.onDistributionPeriod_ = true;
+  cycle.onDistributionPeriod = true;
 
   const id = Bytes.fromUTF8("default");
   const contractConfig = ContractConfig.load(id);
   if (contractConfig == null) return;
   const rewardDistributorAddress = Address.fromBytes(
-    contractConfig.rewardDistributor_
+    contractConfig.rewardDistributor
   );
   const rewardDistributor = RewardDistributorRootstockCollectiveContract.bind(
     rewardDistributorAddress
   );
-  cycle.rewardsERC20_ = rewardDistributor.defaultRewardTokenAmount();
-  cycle.rewardsRBTC_ = rewardDistributor.defaultRewardCoinbaseAmount();
+  cycle.rewardsERC20 = rewardDistributor.defaultRewardTokenAmount();
+  cycle.rewardsRBTC = rewardDistributor.defaultRewardCoinbaseAmount();
 
   cycle.save();
 }
