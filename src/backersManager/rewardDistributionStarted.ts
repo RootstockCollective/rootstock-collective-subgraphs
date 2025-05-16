@@ -3,12 +3,12 @@ import { ContractConfig } from "../../generated/schema";
 import { RewardDistributorRootstockCollective as RewardDistributorRootstockCollectiveContract } from "../../generated/RewardDistributorRootstockCollective/RewardDistributorRootstockCollective";
 import { Address } from "@graphprotocol/graph-ts";
 import { CONTRACT_CONFIG_ID } from "../utils";
-import { createOrLoadCycle } from "./shared";
+import { loadOrCreateCycle } from "./shared";
 
 export function handleRewardDistributionStarted(
   event: RewardDistributionStartedEvent
 ): void {
-  const cycle = createOrLoadCycle(event.address);
+  const cycle = loadOrCreateCycle(event.address);
   cycle.onDistributionPeriod = true;
 
   const id = CONTRACT_CONFIG_ID;

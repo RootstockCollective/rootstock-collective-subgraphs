@@ -1,7 +1,7 @@
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import { GaugeToBuilder, BuilderToGauge, Builder, BuilderState, ContractConfig, BackerRewardPercentage } from "../generated/schema";
 import { GaugeRootstockCollective } from "../generated/templates";
-import { CONTRACT_CONFIG_ID, DEFAULT_BIGINT, DEFAULT_BYTES } from "./utils";
+import { CONTRACT_CONFIG_ID, DEFAULT_BIGINT, DEFAULT_BYTES, DEFAULT_DECIMAL } from "./utils";
 
 export function gaugeCreated(builder: Address, gauge: Address): void {
   GaugeRootstockCollective.create(gauge);
@@ -71,6 +71,7 @@ export function loadOrCreateBuilder(builder: Address): Builder {
     builderEntity.rewardShares = DEFAULT_BIGINT;
     builderEntity.gauge = DEFAULT_BYTES;
     builderEntity.rewardReceiver = DEFAULT_BYTES;
+    builderEntity.estimatedRewardsPct = DEFAULT_DECIMAL;
   }
 
   return builderEntity;
@@ -103,4 +104,15 @@ export function loadOrCreateBackerRewardPercentage(builder: Address): BackerRewa
   }
 
   return backerRewardPercentage;
+}
+
+export function calculateEstimatedRewardsPct(rewardShares: BigInt, totalPotentialReward: BigInt): BigDecimal {
+  if (totalPotentialReward.equals(DEFAULT_BIGINT)) {
+    return DEFAULT_DECIMAL;
+  }
+
+  const shares = new BigDecimal(rewardShares);
+  const total = new BigDecimal(totalPotentialReward);
+
+  return shares.div(total);
 }

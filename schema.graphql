@@ -20,6 +20,7 @@ type GaugeStakingHistory @entity(immutable: false) {
 type Builder @entity(immutable: false) {
   id: Bytes!
   gauge: Bytes!
+  estimatedRewardsPct: BigDecimal!
   backerRewardPercentage: BackerRewardPercentage! @derivedFrom(field: "builder")
   rewardReceiver: Bytes!
   state: BuilderState! @derivedFrom(field: "builder")

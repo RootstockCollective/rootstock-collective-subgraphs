@@ -2,7 +2,7 @@ import { Address } from "@graphprotocol/graph-ts";
 import { Cycle } from "../../generated/schema";
 import { DEFAULT_BIGINT } from "../utils";
 
-export function createOrLoadCycle(backersManager: Address): Cycle {
+export function loadOrCreateCycle(backersManager: Address): Cycle {
     let cycle = Cycle.load(backersManager);
     if (cycle == null) {
         cycle = new Cycle(backersManager);

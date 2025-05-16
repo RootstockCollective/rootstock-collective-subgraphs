@@ -1,4 +1,4 @@
-import { Entity, BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { Entity, BigInt, Bytes, BigDecimal } from "@graphprotocol/graph-ts";
 
 export function loadOrCreateEntity<T extends Entity>(
   id: Bytes,
@@ -14,4 +14,5 @@ export function loadOrCreateEntity<T extends Entity>(
 
 export const DEFAULT_BIGINT = BigInt.zero();
 export const DEFAULT_BYTES = Bytes.empty();
+export const DEFAULT_DECIMAL = BigDecimal.zero();
 export const CONTRACT_CONFIG_ID = Bytes.fromUTF8("default");

@@ -4,9 +4,9 @@ import {
   ContractConfig,
 } from "../../generated/schema";
 import { Address, BigInt } from "@graphprotocol/graph-ts";
-import { createOrLoadCycle } from "../backersManager/shared";
+import { loadOrCreateCycle } from "../backersManager/shared";
 import { CONTRACT_CONFIG_ID } from "../utils";
-import { loadOrCreateBackerRewardPercentage } from "../shared";
+import { calculateEstimatedRewardsPct, loadOrCreateBackerRewardPercentage } from "../shared";
 
 export function rewardReceiverUpdated(
   builder: Address,
@@ -92,26 +92,13 @@ export function selfResumed(builder: Address, rewardPercentage: BigInt, cooldown
   if (builderState == null) return;
   builderState.selfPaused = false;
 
-  const backerRewardPercentage = loadOrCreateBackerRewardPercentage(builder);
-  if (timestamp.ge(backerRewardPercentage.cooldownEndTime)) {
-    backerRewardPercentage.previous = backerRewardPercentage.next;
-  }
-  backerRewardPercentage.cooldownEndTime = cooldown;
-  backerRewardPercentage.next = rewardPercentage;
+  updateBackerRewardPercentage(builder, rewardPercentage, cooldown, timestamp);
 
   builderState.save();
-  backerRewardPercentage.save();
 }
 
 export function backerRewardPercentageUpdateScheduled(builder: Address, rewardPercentage: BigInt, cooldown: BigInt, timestamp: BigInt): void {
-  const backerRewardPercentage = loadOrCreateBackerRewardPercentage(builder);
-  if (timestamp.ge(backerRewardPercentage.cooldownEndTime)) {
-    backerRewardPercentage.previous = backerRewardPercentage.next;
-  }
-  backerRewardPercentage.cooldownEndTime = cooldown;
-  backerRewardPercentage.next = rewardPercentage;
-
-  backerRewardPercentage.save();
+  updateBackerRewardPercentage(builder, rewardPercentage, cooldown, timestamp);
 }
 
 function resumeBuilder(builderEntity: Builder): void {
@@ -122,9 +109,12 @@ function resumeBuilder(builderEntity: Builder): void {
   const contractConfig = ContractConfig.load(id);
   if (contractConfig == null) return;
 
-  const cycle = createOrLoadCycle(Address.fromBytes(contractConfig.backersManager));
+  const cycle = loadOrCreateCycle(Address.fromBytes(contractConfig.backersManager));
   cycle.totalPotentialReward = cycle.totalPotentialReward.plus(builderEntity.rewardShares);
   cycle.save();
+
+  builderEntity.estimatedRewardsPct = calculateEstimatedRewardsPct(builderEntity.rewardShares, cycle.totalPotentialReward);
+  builderEntity.save();
 }
 
 function haltBuilder(builderEntity: Builder): void {
@@ -135,7 +125,20 @@ function haltBuilder(builderEntity: Builder): void {
   const contractConfig = ContractConfig.load(id);
   if (contractConfig == null) return;
 
-  const cycle = createOrLoadCycle(Address.fromBytes(contractConfig.backersManager));
+  const cycle = loadOrCreateCycle(Address.fromBytes(contractConfig.backersManager));
   cycle.totalPotentialReward = cycle.totalPotentialReward.minus(builderEntity.rewardShares);
   cycle.save();
+
+  builderEntity.estimatedRewardsPct = calculateEstimatedRewardsPct(builderEntity.rewardShares, cycle.totalPotentialReward);
+  builderEntity.save();
+}
+
+function updateBackerRewardPercentage(builder: Address, rewardPercentage: BigInt, cooldown: BigInt, timestamp: BigInt): void {
+  const backerRewardPercentage = loadOrCreateBackerRewardPercentage(builder);
+  if (timestamp.ge(backerRewardPercentage.cooldownEndTime)) {
+    backerRewardPercentage.previous = backerRewardPercentage.next;
+  }
+  backerRewardPercentage.cooldownEndTime = cooldown;
+  backerRewardPercentage.next = rewardPercentage;
+  backerRewardPercentage.save();
 }
