@@ -20,7 +20,7 @@ type GaugeStakingHistory @entity(immutable: false) {
 type Builder @entity(immutable: false) {
   id: Bytes!
   gauge: Bytes!
-  backerRewardPercentage: BigInt!
+  backerRewardPercentage: BackerRewardPercentage! @derivedFrom(field: "builder")
   rewardReceiver: Bytes!
   state: BuilderState! @derivedFrom(field: "builder")
   isHalted: Boolean!
@@ -29,6 +29,25 @@ type Builder @entity(immutable: false) {
   rewardShares: BigInt!
   proposals: [Proposal!]! @derivedFrom(field: "builder")
   rewardsClaimed: [BuilderRewardsClaimed!]! @derivedFrom(field: "builder")
+}
+
+type BuilderState @entity(immutable: false) {
+  id: Bytes!
+  builder: Builder!
+  initialized: Boolean!
+  kycApproved: Boolean!
+  communityApproved: Boolean!
+  kycPaused: Boolean!
+  selfPaused: Boolean!
+  pausedReason: String!
+}
+
+type BackerRewardPercentage @entity(immutable: false) { 
+  id: Bytes!
+  builder: Builder!
+  previous: BigInt!
+  next: BigInt!
+  cooldownEndTime: BigInt!
 }
 
 type GaugeToBuilder @entity(immutable: true) { 
@@ -48,16 +67,6 @@ type BuilderRewardsClaimed @entity(immutable: false) {
   builder: Builder! 
 }
 
-type BuilderState @entity(immutable: false) {
-  id: Bytes!
-  builder: Builder!
-  initialized: Boolean!
-  kycApproved: Boolean!
-  communityApproved: Boolean!
-  kycPaused: Boolean!
-  selfPaused: Boolean!
-  pausedReason: String!
-}
 
 type Proposal @entity(immutable: false) {
   id: Bytes!
@@ -88,6 +97,7 @@ type BackerToBuilder @entity(immutable: false) {
   totalAllocation: BigInt!
   backer: Backer!
   builder: Builder!
+  builderState: BuilderState!
   rewardsClaimed: [BackerToBuilderRewardsClaimed!] @derivedFrom(field: "backerToBuilder")
 }
 
@@ -114,4 +124,5 @@ type ContractConfig @entity(immutable: false) {
   backersManager: Bytes!
   builderRegistry: Bytes!
   rewardDistributor: Bytes!
+  builders: [Bytes!]!
 }

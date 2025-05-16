@@ -117,6 +117,8 @@ dataSources:
           handler: handleRevoked
         - event: Permitted(indexed address,uint256,uint256)
           handler: handlePermitted
+        - event: BackerRewardPercentageUpdateScheduled(indexed address,uint256,uint256)
+          handler: handleBackerRewardPercentageUpdateScheduled
   - kind: ethereum
     name: BuilderRegistryRootstockCollective
     network: {{network}}
@@ -163,6 +165,8 @@ dataSources:
           handler: handleSelfResumed
         - event: Upgraded(indexed address)
           handler: handleUpgraded
+        - event: BackerRewardPercentageUpdateScheduled(indexed address,uint256,uint256)
+          handler: handleBackerRewardPercentageUpdateScheduled
   - kind: ethereum
     name: RewardDistributorRootstockCollective
     network: {{network}}

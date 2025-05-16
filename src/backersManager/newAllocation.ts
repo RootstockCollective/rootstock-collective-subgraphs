@@ -11,6 +11,7 @@ import { BackersManagerRootstockCollective as BackersManagerRootstockCollectiveC
 import { GaugeRootstockCollective as GaugeRootstockCollectiveContract } from "../../generated/templates/GaugeRootstockCollective/GaugeRootstockCollective";
 import { DEFAULT_BIGINT } from "../utils";
 import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { createOrLoadCycle } from "./shared";
 
 
 export function handleNewAllocation(event: NewAllocationEvent): void {
@@ -90,11 +91,18 @@ function _handleBuilder(event: NewAllocationEvent): void {
   if (builder == null) return;
 
   const previousAllocation = _getPreviousAllocation(gaugeToBuilder, event.params.backer_);
-  builder.totalAllocation = builder.totalAllocation.minus(previousAllocation).plus(event.params.allocation_);
+  builder.totalAllocation = builder.totalAllocation.plus(event.params.allocation_).minus(previousAllocation);
 
   const gaugeContract = GaugeRootstockCollectiveContract.bind(event.params.gauge_);
-  builder.rewardShares = gaugeContract.rewardShares();
+  const rewardShares = gaugeContract.rewardShares();
 
+  if(!builder.isHalted) { 
+    const cycle = createOrLoadCycle(event.address);
+    cycle.totalPotentialReward = cycle.totalPotentialReward.plus(rewardShares).minus(builder.rewardShares);
+    cycle.save();
+  }
+
+  builder.rewardShares = rewardShares;
   builder.save();
 }
 
@@ -109,7 +117,7 @@ function _handleBacker(event: NewAllocationEvent): void {
   if (gaugeToBuilder == null) return;
 
   const previousAllocation = _getPreviousAllocation(gaugeToBuilder, event.params.backer_);
-  backer.totalAllocation = backer.totalAllocation.minus(previousAllocation).plus(event.params.allocation_);
+  backer.totalAllocation = backer.totalAllocation.plus(event.params.allocation_).minus(previousAllocation);
 
   backer.save();
 }
@@ -127,6 +135,7 @@ function _handleBackerToBuilder(event: NewAllocationEvent): void {
     );
     backerToBuilder.backer = event.params.backer_;
     backerToBuilder.builder = gaugeToBuilder.builder;
+    backerToBuilder.builderState = gaugeToBuilder.builder;
   }
   backerToBuilder.totalAllocation = event.params.allocation_;
 

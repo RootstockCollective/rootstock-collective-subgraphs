@@ -10,3 +10,4 @@ export { handleRewardReceiverUpdated } from "./rewardReceiverUpdated";
 export { handleSelfPaused } from "./selfPaused";
 export { handleSelfResumed } from "./selfResumed";
 export { handleUpgraded } from "./upgraded";
+export { handleBackerRewardPercentageUpdateScheduled } from "./backerRewardPercentageUpdateScheduled";

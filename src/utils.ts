@@ -14,4 +14,4 @@ export function loadOrCreateEntity<T extends Entity>(
 
 export const DEFAULT_BIGINT = BigInt.zero();
 export const DEFAULT_BYTES = Bytes.empty();
-export const CONTRACT_CONFIG = Bytes.fromUTF8("default");
+export const CONTRACT_CONFIG_ID = Bytes.fromUTF8("default");

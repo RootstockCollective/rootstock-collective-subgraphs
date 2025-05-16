@@ -9,3 +9,4 @@ export { handlePaused } from "./paused";
 export { handleUnpaused } from "./unpaused";
 export { handleRevoked } from "./revoked";
 export { handlePermitted } from "./permitted";
+export { handleBackerRewardPercentageUpdateScheduled } from "./backerRewardPercentageUpdateScheduled";

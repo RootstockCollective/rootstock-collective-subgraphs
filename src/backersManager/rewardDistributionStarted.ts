@@ -1,23 +1,17 @@
 import { RewardDistributionStarted as RewardDistributionStartedEvent } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
-import { Cycle, ContractConfig } from "../../generated/schema";
+import { ContractConfig } from "../../generated/schema";
 import { RewardDistributorRootstockCollective as RewardDistributorRootstockCollectiveContract } from "../../generated/RewardDistributorRootstockCollective/RewardDistributorRootstockCollective";
-import { Address, Bytes } from "@graphprotocol/graph-ts";
-import { DEFAULT_BIGINT } from "../utils";
+import { Address } from "@graphprotocol/graph-ts";
+import { CONTRACT_CONFIG_ID } from "../utils";
+import { createOrLoadCycle } from "./shared";
 
 export function handleRewardDistributionStarted(
   event: RewardDistributionStartedEvent
 ): void {
-  let cycle = Cycle.load(event.address);
-  if (cycle == null) {
-    cycle = new Cycle(event.address);
-    cycle.totalPotentialReward = DEFAULT_BIGINT;
-    cycle.periodFinish = DEFAULT_BIGINT;
-    cycle.cycleDuration = DEFAULT_BIGINT;
-    cycle.distributionDuration = DEFAULT_BIGINT;
-  }
+  const cycle = createOrLoadCycle(event.address);
   cycle.onDistributionPeriod = true;
 
-  const id = Bytes.fromUTF8("default");
+  const id = CONTRACT_CONFIG_ID;
   const contractConfig = ContractConfig.load(id);
   if (contractConfig == null) return;
   const rewardDistributorAddress = Address.fromBytes(

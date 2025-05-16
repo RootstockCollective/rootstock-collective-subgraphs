@@ -1,8 +1,12 @@
 import {
   Builder,
   BuilderState,
+  ContractConfig,
 } from "../../generated/schema";
-import { Address } from "@graphprotocol/graph-ts";
+import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { createOrLoadCycle } from "../backersManager/shared";
+import { CONTRACT_CONFIG_ID } from "../utils";
+import { loadOrCreateBackerRewardPercentage } from "../shared";
 
 export function rewardReceiverUpdated(
   builder: Address,
@@ -18,39 +22,36 @@ export function rewardReceiverUpdated(
 export function communityBanned(builder: Address): void {
   const builderEntity = Builder.load(builder);
   if (builderEntity == null) return;
-  builderEntity.isHalted = false;
+  haltBuilder(builderEntity);
 
   const builderState = BuilderState.load(builder);
   if (builderState == null) return;
   builderState.communityApproved = false;
 
-  builderEntity.save();
   builderState.save();
 }
 
 export function kycApproved(builder: Address): void {
   const builderEntity = Builder.load(builder);
   if (builderEntity == null) return;
-  builderEntity.isHalted = true;
-  
+  resumeBuilder(builderEntity);
+
   const builderState = BuilderState.load(builder);
   if (builderState == null) return;
   builderState.kycApproved = true;
 
-  builderEntity.save();
   builderState.save();
 }
 
 export function kycRevoked(builder: Address): void {
   const builderEntity = Builder.load(builder);
   if (builderEntity == null) return;
-  builderEntity.isHalted = false;
+  haltBuilder(builderEntity);
 
   const builderState = BuilderState.load(builder);
   if (builderState == null) return;
   builderState.kycApproved = false;
 
-  builderEntity.save();
   builderState.save();
 }
 
@@ -73,25 +74,68 @@ export function kycResumed(builder_: Address): void {
 export function selfPaused(builder: Address): void {
   const builderEntity = Builder.load(builder);
   if (builderEntity == null) return;
-  builderEntity.isHalted = false;
+  haltBuilder(builderEntity);
 
   const builderState = BuilderState.load(builder);
   if (builderState == null) return;
   builderState.selfPaused = true;
 
-  builderEntity.save();
   builderState.save();
 }
 
-export function selfResumed(builder: Address): void {
+export function selfResumed(builder: Address, rewardPercentage: BigInt, cooldown: BigInt, timestamp: BigInt): void {
   const builderEntity = Builder.load(builder);
   if (builderEntity == null) return;
-  builderEntity.isHalted = true;
+  resumeBuilder(builderEntity);
 
   const builderState = BuilderState.load(builder);
   if (builderState == null) return;
   builderState.selfPaused = false;
 
-  builderEntity.save();
+  const backerRewardPercentage = loadOrCreateBackerRewardPercentage(builder);
+  if (timestamp.ge(backerRewardPercentage.cooldownEndTime)) {
+    backerRewardPercentage.previous = backerRewardPercentage.next;
+  }
+  backerRewardPercentage.cooldownEndTime = cooldown;
+  backerRewardPercentage.next = rewardPercentage;
+
   builderState.save();
+  backerRewardPercentage.save();
+}
+
+export function backerRewardPercentageUpdateScheduled(builder: Address, rewardPercentage: BigInt, cooldown: BigInt, timestamp: BigInt): void {
+  const backerRewardPercentage = loadOrCreateBackerRewardPercentage(builder);
+  if (timestamp.ge(backerRewardPercentage.cooldownEndTime)) {
+    backerRewardPercentage.previous = backerRewardPercentage.next;
+  }
+  backerRewardPercentage.cooldownEndTime = cooldown;
+  backerRewardPercentage.next = rewardPercentage;
+
+  backerRewardPercentage.save();
+}
+
+function resumeBuilder(builderEntity: Builder): void {
+  builderEntity.isHalted = false;
+  builderEntity.save();
+
+  const id = CONTRACT_CONFIG_ID;
+  const contractConfig = ContractConfig.load(id);
+  if (contractConfig == null) return;
+
+  const cycle = createOrLoadCycle(Address.fromBytes(contractConfig.backersManager));
+  cycle.totalPotentialReward = cycle.totalPotentialReward.plus(builderEntity.rewardShares);
+  cycle.save();
+}
+
+function haltBuilder(builderEntity: Builder): void {
+  builderEntity.isHalted = true;
+  builderEntity.save();
+
+  const id = CONTRACT_CONFIG_ID;
+  const contractConfig = ContractConfig.load(id);
+  if (contractConfig == null) return;
+
+  const cycle = createOrLoadCycle(Address.fromBytes(contractConfig.backersManager));
+  cycle.totalPotentialReward = cycle.totalPotentialReward.minus(builderEntity.rewardShares);
+  cycle.save();
 }
