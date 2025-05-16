@@ -12,6 +12,7 @@ export function loadOrCreateEntity<T extends Entity>(
   return entity;
 }
 
+export const ZERO_ADDRESS = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
 export const DEFAULT_BIGINT = BigInt.zero();
 export const DEFAULT_BYTES = Bytes.empty();
 export const DEFAULT_DECIMAL = BigDecimal.zero();

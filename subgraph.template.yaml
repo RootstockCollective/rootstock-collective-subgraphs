@@ -21,19 +21,34 @@ dataSources:
         - Builder
         - BuilderState
         - GaugeToBuilder
-        - BuilderToGauge
       abis:
         - name: BackersManagerRootstockCollectiveV1
           file: ./abis/deprecated/BackersManagerRootstockCollective.json
       eventHandlers:
-        - event: GaugeCreated(indexed address,indexed address,address)
-          handler: handleGaugeCreated
-        - event: Whitelisted(indexed address)
-          handler: handleWhitelisted
         - event: BuilderActivated(indexed address,address,uint64)
           handler: handleBuilderActivated
+        - event: BuilderRewardReceiverReplacementApproved(indexed address,address)
+          handler: handleBuilderRewardReceiverReplacementApproved
         - event: CommunityApproved(indexed address)
           handler: handleCommunityApproved
+        - event: Dewhitelisted(indexed address)
+          handler: handleDewhitelisted
+        - event: GaugeCreated(indexed address,indexed address,address)
+          handler: handleGaugeCreated
+        - event: KYCApproved(indexed address)
+          handler: handleKYCApproved
+        - event: KYCRevoked(indexed address)
+          handler: handleKYCRevoked
+        - event: Paused(indexed address,bytes20)
+          handler: handlePaused
+        - event: Unpaused(indexed address)
+          handler: handleUnpaused
+        - event: Revoked(indexed address)
+          handler: handleRevoked
+        - event: Permitted(indexed address,uint256,uint256)
+          handler: handlePermitted
+        - event: BackerRewardPercentageUpdateScheduled(indexed address,uint256,uint256)
+          handler: handleBackerRewardPercentageUpdateScheduled
   - kind: ethereum
     name: BackersManagerRootstockCollective
     network: {{network}}
@@ -90,7 +105,6 @@ dataSources:
         - Builder
         - BuilderState
         - GaugeToBuilder
-        - BuilderToGauge
       abis:
         - name: BuilderRegistryRootstockCollectiveV2
           file: ./abis/deprecated/BuilderRegistryRootstockCollective.json
@@ -136,7 +150,6 @@ dataSources:
         - BuilderState
         - ContractConfig
         - GaugeToBuilder
-        - BuilderToGauge
       abis:
         - name: BuilderRegistryRootstockCollective
           file: ./abis/BuilderRegistryRootstockCollective.json

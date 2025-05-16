@@ -11,8 +11,8 @@ import { BackersManagerRootstockCollective as BackersManagerRootstockCollectiveC
 import { GaugeRootstockCollective as GaugeRootstockCollectiveContract } from "../../generated/templates/GaugeRootstockCollective/GaugeRootstockCollective";
 import { DEFAULT_BIGINT } from "../utils";
 import { Address, BigInt } from "@graphprotocol/graph-ts";
-import { loadOrCreateCycle } from "./shared";
-import { calculateEstimatedRewardsPct } from "../shared";
+import { loadOrCreateCycle, calculateEstimatedRewardsPct } from "../shared";
+
 
 export function handleNewAllocation(event: NewAllocationEvent): void {
   _handleBackerStakingHistory(event);
@@ -96,8 +96,8 @@ function _handleBuilder(event: NewAllocationEvent): void {
   const gaugeContract = GaugeRootstockCollectiveContract.bind(event.params.gauge_);
   const rewardShares = gaugeContract.rewardShares();
 
+  const cycle = loadOrCreateCycle(event.address);
   if(!builder.isHalted) { 
-    const cycle = loadOrCreateCycle(event.address);
     cycle.totalPotentialReward = cycle.totalPotentialReward.plus(rewardShares).minus(builder.rewardShares);
     cycle.save();
 

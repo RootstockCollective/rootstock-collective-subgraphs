@@ -74,5 +74,158 @@
             }
         ],
         "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "KYCApproved",
+        "inputs": [
+            {
+                "name": "builder_",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "KYCRevoked",
+        "inputs": [
+            {
+                "name": "builder_",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "Paused",
+        "inputs": [
+            {
+                "name": "builder_",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "reason_",
+                "type": "bytes20",
+                "indexed": false,
+                "internalType": "bytes20"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "Permitted",
+        "inputs": [
+            {
+                "name": "builder_",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "rewardPercentage_",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            },
+            {
+                "name": "cooldown_",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "Revoked",
+        "inputs": [
+            {
+                "name": "builder_",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "Unpaused",
+        "inputs": [
+            {
+                "name": "builder_",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "BackerRewardPercentageUpdateScheduled",
+        "inputs": [
+            {
+                "name": "builder_",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "rewardPercentage_",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            },
+            {
+                "name": "cooldown_",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "BuilderRewardReceiverReplacementApproved",
+        "inputs": [
+            {
+                "name": "builder_",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "newRewardReceiver_",
+                "type": "address",
+                "indexed": false,
+                "internalType": "address"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "Dewhitelisted",
+        "inputs": [
+            {
+                "name": "builder_",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            }
+        ],
+        "anonymous": false
     }
 ]

@@ -3,7 +3,7 @@ import { ContractConfig } from "../../generated/schema";
 import { RewardDistributorRootstockCollective as RewardDistributorRootstockCollectiveContract } from "../../generated/RewardDistributorRootstockCollective/RewardDistributorRootstockCollective";
 import { Address } from "@graphprotocol/graph-ts";
 import { CONTRACT_CONFIG_ID } from "../utils";
-import { loadOrCreateCycle } from "./shared";
+import { loadOrCreateCycle } from "../shared";
 
 export function handleRewardDistributionStarted(
   event: RewardDistributionStartedEvent

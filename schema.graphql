@@ -40,7 +40,7 @@ type BuilderState @entity(immutable: false) {
   communityApproved: Boolean!
   kycPaused: Boolean!
   selfPaused: Boolean!
-  pausedReason: String!
+  pausedReason: Bytes!
 }
 
 type BackerRewardPercentage @entity(immutable: false) { 
@@ -54,11 +54,6 @@ type BackerRewardPercentage @entity(immutable: false) {
 type GaugeToBuilder @entity(immutable: true) { 
   id: Bytes!
   builder: Bytes!
-}
-
-type BuilderToGauge @entity(immutable: true) { 
-  id: Bytes!
-  gauge: Bytes!
 }
 
 type BuilderRewardsClaimed @entity(immutable: false) {
