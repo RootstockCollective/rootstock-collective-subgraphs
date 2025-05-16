@@ -6,6 +6,10 @@
     },
     "builderRegistry": {
         "address": "0x210Bd60949E4387A9b357E4991F49d8953BF524d",
-        "startBlock": 6180722        
+        "startBlock": 6180722
+    },
+    "rewardDistributor": {
+        "address": "0xee3F0C605944a9B5348002B489A7213535fc38DE",
+        "startBlock": 5884644
     }
 }

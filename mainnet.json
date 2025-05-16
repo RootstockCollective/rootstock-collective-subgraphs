@@ -7,5 +7,9 @@
     "builderRegistry": {
         "address": "0x8cb62c58AC3D1253c6467537FDDc563857eD76cb",
         "startBlock": 7260455
+    },
+    "rewardDistributor": {
+        "address": "0xee3F0C605944a9B5348002B489A7213535fc38DE",
+        "startBlock": 6958706
     }
 }
