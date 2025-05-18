@@ -1,4 +1,4 @@
-import { Entity, BigInt, Bytes, BigDecimal, Address } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes, BigDecimal, Address, log } from "@graphprotocol/graph-ts";
 import { BackerRewardPercentage, Builder, BuilderState, Cycle } from "../generated/schema";
 
 export function loadOrCreateBuilder(builder: Address): Builder {
@@ -61,16 +61,11 @@ export function loadOrCreateCycle(backersManager: Address): Cycle {
   return cycle;
 }
 
-export function loadOrCreateEntity<T extends Entity>(
-  id: Bytes,
-  loadFn: (id: Bytes) => T | null,
-  createFn: (id: Bytes) => T
-): T {
-  let entity = loadFn(id);
-  if (entity == null) {
-    entity = createFn(id);
-  }
-  return entity;
+export function logEntityNotFound(entityType: string, entityId: string, context: string): void {
+  log.warning(
+    `[Entity Not Found] type: ${entityType}, id: ${entityId}, function: ${context}`,
+    []
+  );
 }
 
 export const ZERO_ADDRESS = Bytes.fromHexString("0x0000000000000000000000000000000000000000");

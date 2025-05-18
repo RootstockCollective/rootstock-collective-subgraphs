@@ -1,12 +1,15 @@
 import { BuilderRewardsClaimed as BuilderRewardsClaimedEvent } from "../../generated/templates/GaugeRootstockCollective/GaugeRootstockCollective";
 import { Builder, BuilderRewardsClaimed } from "../../generated/schema";
-import { DEFAULT_BIGINT } from "../utils";
+import { DEFAULT_BIGINT, logEntityNotFound } from "../utils";
 
 export function handleBuilderRewardsClaimed(
   event: BuilderRewardsClaimedEvent
 ): void {
   const builder = Builder.load(event.params.builder_);
-  if (builder == null) return;
+  if (builder == null) {
+    logEntityNotFound('Builder', event.params.builder_.toHexString(), 'handleBuilderRewardsClaimed');
+    return;
+  }
 
   const rewardsClaimedId = event.params.builder_.concat(
     event.params.rewardToken_

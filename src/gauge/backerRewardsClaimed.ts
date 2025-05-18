@@ -8,7 +8,7 @@ import {
   BackerToBuilderRewardsClaimed,
   GaugeToBuilder,
 } from "../../generated/schema";
-import { DEFAULT_BIGINT } from "../utils";
+import { DEFAULT_BIGINT, logEntityNotFound } from "../utils";
 
 export function handleBackerRewardsClaimed(
   event: BackerRewardsClaimedEvent
@@ -19,7 +19,10 @@ export function handleBackerRewardsClaimed(
 
 function _handleBacker(event: BackerRewardsClaimedEvent): void {
   const backer = Backer.load(event.params.backer_);
-  if (backer == null) return;
+  if (backer == null) {
+    logEntityNotFound('Backer', event.params.backer_.toHexString(), 'BackerRewardsClaimed.handleBacker');
+    return;
+  }
 
   const rewardsClaimedId = event.params.backer_.concat(
     event.params.rewardToken_
@@ -38,13 +41,19 @@ function _handleBacker(event: BackerRewardsClaimedEvent): void {
 
 function _handleBackerToBuilder(event: BackerRewardsClaimedEvent): void {
   const gaugeToBuilder = GaugeToBuilder.load(event.address);
-  if (gaugeToBuilder == null) return;
+  if (gaugeToBuilder == null) {
+    logEntityNotFound('GaugeToBuilder', event.address.toHexString(), 'BackerRewardsClaimed.handleBackerToBuilder');
+    return;
+  }
 
   const backerToBuilderId = event.params.backer_.concat(
     gaugeToBuilder.builder
   );
   const backerToBuilder = BackerToBuilder.load(backerToBuilderId);
-  if (backerToBuilder == null) return;
+  if (backerToBuilder == null) {
+    logEntityNotFound('BackerToBuilder', backerToBuilderId.toHexString(), 'BackerRewardsClaimed.handleBackerToBuilder');
+    return;
+  }
 
   const rewardsClaimedId = backerToBuilderId.concat(event.params.rewardToken_);
   let rewardsClaimed = BackerToBuilderRewardsClaimed.load(rewardsClaimedId);

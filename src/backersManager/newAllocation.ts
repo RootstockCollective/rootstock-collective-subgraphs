@@ -9,7 +9,7 @@ import {
 } from "../../generated/schema";
 import { BackersManagerRootstockCollective as BackersManagerRootstockCollectiveContract } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
 import { GaugeRootstockCollective as GaugeRootstockCollectiveContract } from "../../generated/templates/GaugeRootstockCollective/GaugeRootstockCollective";
-import { DEFAULT_BIGINT, loadOrCreateCycle } from "../utils";
+import { DEFAULT_BIGINT, loadOrCreateCycle, logEntityNotFound } from "../utils";
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 
 export function handleNewAllocation(event: NewAllocationEvent): void {
@@ -83,10 +83,16 @@ function _getPreviousAllocation(gaugeToBuilder: GaugeToBuilder, backer: Address)
 
 function _handleBuilder(event: NewAllocationEvent): void {
   const gaugeToBuilder = GaugeToBuilder.load(event.params.gauge_);
-  if (gaugeToBuilder == null) return;
+  if (gaugeToBuilder == null) {
+    logEntityNotFound('GaugeToBuilder', event.params.gauge_.toHexString(), 'NewAllocation.handleBuilder');
+    return;
+  }
 
   const builder = Builder.load(gaugeToBuilder.builder);
-  if (builder == null) return;
+  if (builder == null) {
+    logEntityNotFound('Builder', gaugeToBuilder.builder.toString(), 'NewAllocation.handleBuilder');
+    return;
+  }
 
   const previousAllocation = _getPreviousAllocation(gaugeToBuilder, event.params.backer_);
   builder.totalAllocation = builder.totalAllocation.plus(event.params.allocation_).minus(previousAllocation);
@@ -112,7 +118,10 @@ function _handleBacker(event: NewAllocationEvent): void {
     backer.isBlacklisted = false;
   }
   const gaugeToBuilder = GaugeToBuilder.load(event.params.gauge_);
-  if (gaugeToBuilder == null) return;
+  if (gaugeToBuilder == null) {
+    logEntityNotFound('GaugeToBuilder', event.params.gauge_.toHexString(), 'NewAllocation.handleBacker');
+    return;
+  }
 
   const previousAllocation = _getPreviousAllocation(gaugeToBuilder, event.params.backer_);
   backer.totalAllocation = backer.totalAllocation.plus(event.params.allocation_).minus(previousAllocation);
@@ -122,7 +131,10 @@ function _handleBacker(event: NewAllocationEvent): void {
 
 function _handleBackerToBuilder(event: NewAllocationEvent): void {
   const gaugeToBuilder = GaugeToBuilder.load(event.params.gauge_);
-  if (gaugeToBuilder == null) return;
+  if (gaugeToBuilder == null) {
+    logEntityNotFound('GaugeToBuilder', event.params.gauge_.toHexString(), 'NewAllocation.handleBackerToBuilder');
+    return;
+  }
 
   let backerToBuilder = BackerToBuilder.load(
     event.params.backer_.concat(gaugeToBuilder.builder)
