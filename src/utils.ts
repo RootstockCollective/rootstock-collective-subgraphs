@@ -1,4 +1,65 @@
-import { Entity, BigInt, Bytes, BigDecimal } from "@graphprotocol/graph-ts";
+import { Entity, BigInt, Bytes, BigDecimal, Address } from "@graphprotocol/graph-ts";
+import { BackerRewardPercentage, Builder, BuilderState, Cycle } from "../generated/schema";
+
+export function loadOrCreateBuilder(builder: Address): Builder {
+  let builderEntity = Builder.load(builder);
+  if (builderEntity == null) {
+    builderEntity = new Builder(builder);
+    builderEntity.isHalted = false;
+    builderEntity.lastCycleRewards = DEFAULT_BIGINT;
+    builderEntity.totalAllocation = DEFAULT_BIGINT;
+    builderEntity.rewardShares = DEFAULT_BIGINT;
+    builderEntity.gauge = ZERO_ADDRESS;
+    builderEntity.rewardReceiver = DEFAULT_BYTES;
+  }
+
+  return builderEntity;
+}
+
+export function loadOrCreateBuilderState(builder: Address): BuilderState {
+  let builderState = BuilderState.load(builder);
+  if (builderState == null) {
+    builderState = new BuilderState(builder);
+    builderState.builder = builder;
+    builderState.initialized = false;
+    builderState.kycApproved = false;
+    builderState.communityApproved = false;
+    builderState.kycPaused = false;
+    builderState.selfPaused = false;
+    builderState.pausedReason = DEFAULT_BYTES;
+  }
+
+  return builderState;
+}
+
+export function loadOrCreateBackerRewardPercentage(builder: Address): BackerRewardPercentage {
+  let backerRewardPercentage = BackerRewardPercentage.load(builder);
+  if (backerRewardPercentage == null) {
+    backerRewardPercentage = new BackerRewardPercentage(builder);
+    backerRewardPercentage.builder = builder;
+    backerRewardPercentage.next = DEFAULT_BIGINT;
+    backerRewardPercentage.previous = DEFAULT_BIGINT;
+    backerRewardPercentage.cooldownEndTime = DEFAULT_BIGINT;
+  }
+
+  return backerRewardPercentage;
+}
+
+export function loadOrCreateCycle(backersManager: Address): Cycle {
+  let cycle = Cycle.load(backersManager);
+  if (cycle == null) {
+    cycle = new Cycle(backersManager);
+    cycle.totalPotentialReward = DEFAULT_BIGINT;
+    cycle.rewardsERC20 = DEFAULT_BIGINT;
+    cycle.rewardsRBTC = DEFAULT_BIGINT;
+    cycle.onDistributionPeriod = false;
+    cycle.periodFinish = DEFAULT_BIGINT;
+    cycle.cycleDuration = DEFAULT_BIGINT;
+    cycle.distributionDuration = DEFAULT_BIGINT;
+  }
+
+  return cycle;
+}
 
 export function loadOrCreateEntity<T extends Entity>(
   id: Bytes,

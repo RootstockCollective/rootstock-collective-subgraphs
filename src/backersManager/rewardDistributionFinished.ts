@@ -4,7 +4,6 @@ import { GaugeRootstockCollective as GaugeRootstockCollectiveContract } from "..
 import { Builder, ContractConfig, Cycle } from "../../generated/schema";
 import { CONTRACT_CONFIG_ID } from "../utils";
 import { Address } from "@graphprotocol/graph-ts";
-import { calculateEstimatedRewardsPct } from "../shared";
 
 export function handleRewardDistributionFinished(
   event: RewardDistributionFinishedEvent
@@ -17,7 +16,6 @@ export function handleRewardDistributionFinished(
   if (cycle == null) return;
   cycle.onDistributionPeriod = false;
   cycle.totalPotentialReward = backersManagerContract.totalPotentialReward();
-
   cycle.save();
 
   const contractConfig = ContractConfig.load(CONTRACT_CONFIG_ID);
@@ -30,7 +28,6 @@ export function handleRewardDistributionFinished(
     const gauge = GaugeRootstockCollectiveContract.bind(Address.fromBytes(builderEntity.gauge));
 
     builderEntity.rewardShares = gauge.rewardShares();
-    builderEntity.estimatedRewardsPct = calculateEstimatedRewardsPct(builderEntity.rewardShares, cycle.totalPotentialReward);
     builderEntity.save();
   }
 }

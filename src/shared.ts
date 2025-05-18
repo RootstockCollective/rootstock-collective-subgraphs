@@ -1,7 +1,7 @@
-import { Address, BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
-import { GaugeToBuilder, Builder, BuilderState, ContractConfig, BackerRewardPercentage, Cycle } from "../generated/schema";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { GaugeToBuilder, Builder, BuilderState, ContractConfig } from "../generated/schema";
 import { GaugeRootstockCollective } from "../generated/templates";
-import { CONTRACT_CONFIG_ID, DEFAULT_BIGINT, DEFAULT_BYTES, DEFAULT_DECIMAL, ZERO_ADDRESS } from "./utils";
+import { CONTRACT_CONFIG_ID, loadOrCreateBuilder, loadOrCreateBackerRewardPercentage, loadOrCreateBuilderState, loadOrCreateCycle } from "./utils";
 
 export function gaugeCreated(builder: Address, gauge: Address): void {
   GaugeRootstockCollective.create(gauge);
@@ -55,63 +55,6 @@ export function builderInitialized(
   backerRewardPercentage.save();
 }
 
-export function loadOrCreateBuilder(builder: Address): Builder {
-  let builderEntity = Builder.load(builder);
-  if (builderEntity == null) {
-    builderEntity = new Builder(builder);
-    builderEntity.isHalted = false;
-    builderEntity.lastCycleRewards = DEFAULT_BIGINT;
-    builderEntity.totalAllocation = DEFAULT_BIGINT;
-    builderEntity.rewardShares = DEFAULT_BIGINT;
-    builderEntity.gauge = ZERO_ADDRESS;
-    builderEntity.rewardReceiver = DEFAULT_BYTES;
-    builderEntity.estimatedRewardsPct = DEFAULT_DECIMAL;
-  }
-
-  return builderEntity;
-}
-
-export function loadOrCreateBuilderState(builder: Address): BuilderState {
-  let builderState = BuilderState.load(builder);
-  if (builderState == null) {
-    builderState = new BuilderState(builder);
-    builderState.builder = builder;
-    builderState.initialized = false;
-    builderState.kycApproved = false;
-    builderState.communityApproved = false;
-    builderState.kycPaused = false;
-    builderState.selfPaused = false;
-    builderState.pausedReason = DEFAULT_BYTES;
-  }
-
-  return builderState;
-}
-
-export function loadOrCreateBackerRewardPercentage(builder: Address): BackerRewardPercentage {
-  let backerRewardPercentage = BackerRewardPercentage.load(builder);
-  if (backerRewardPercentage == null) {
-    backerRewardPercentage = new BackerRewardPercentage(builder);
-    backerRewardPercentage.builder = builder;
-    backerRewardPercentage.next = DEFAULT_BIGINT;
-    backerRewardPercentage.previous = DEFAULT_BIGINT;
-    backerRewardPercentage.cooldownEndTime = DEFAULT_BIGINT;
-  }
-
-  return backerRewardPercentage;
-}
-
-export function calculateEstimatedRewardsPct(rewardShares: BigInt, totalPotentialReward: BigInt): BigDecimal {
-  if (totalPotentialReward.equals(DEFAULT_BIGINT)) {
-    return DEFAULT_DECIMAL;
-  }
-
-  const shares = new BigDecimal(rewardShares);
-  const total = new BigDecimal(totalPotentialReward);
-
-  return shares.div(total);
-}
-
-
 export function communityBanned(builder: Address): void {
   const builderEntity = Builder.load(builder);
   if (builderEntity == null) return;
@@ -155,8 +98,6 @@ export function kycPaused(builder: Address, reason: Bytes): void {
 
   builderState.save();
 }
-
-
 
 export function kycResumed(builder_: Address): void {
   const builderState = BuilderState.load(builder_);
@@ -219,9 +160,6 @@ function resumeBuilder(builderEntity: Builder): void {
   const totalPotentialReward = cycle.totalPotentialReward.plus(builderEntity.rewardShares);
   cycle.totalPotentialReward = totalPotentialReward
   cycle.save();
-
-  builderEntity.estimatedRewardsPct = calculateEstimatedRewardsPct(builderEntity.rewardShares, totalPotentialReward);
-  builderEntity.save();
 }
 
 function haltBuilder(builderEntity: Builder): void {
@@ -236,9 +174,6 @@ function haltBuilder(builderEntity: Builder): void {
   const totalPotentialReward = cycle.totalPotentialReward.minus(builderEntity.rewardShares);
   cycle.totalPotentialReward = totalPotentialReward;
   cycle.save();
-
-  builderEntity.estimatedRewardsPct = calculateEstimatedRewardsPct(builderEntity.rewardShares, totalPotentialReward);
-  builderEntity.save();
 }
 
 function updateBackerRewardPercentage(builder: Address, rewardPercentage: BigInt, cooldown: BigInt, timestamp: BigInt): void {
@@ -251,18 +186,3 @@ function updateBackerRewardPercentage(builder: Address, rewardPercentage: BigInt
   backerRewardPercentage.save();
 }
 
-export function loadOrCreateCycle(backersManager: Address): Cycle {
-  let cycle = Cycle.load(backersManager);
-  if (cycle == null) {
-      cycle = new Cycle(backersManager);
-      cycle.totalPotentialReward = DEFAULT_BIGINT;
-      cycle.rewardsERC20 = DEFAULT_BIGINT;
-      cycle.rewardsRBTC = DEFAULT_BIGINT;
-      cycle.onDistributionPeriod = false;
-      cycle.periodFinish = DEFAULT_BIGINT;
-      cycle.cycleDuration = DEFAULT_BIGINT;
-      cycle.distributionDuration = DEFAULT_BIGINT;
-  }
-
-  return cycle;
-}
