@@ -11,7 +11,7 @@ dataSources:
       address: "{{backersManager.address}}"
       abi: BackersManagerRootstockCollectiveV1
       startBlock: {{backersManager.startBlock}}
-      endBlock: {{backersManager.migrationV2}}
+      endBlock: {{backersManager.upgradeV2}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
@@ -95,7 +95,7 @@ dataSources:
       address: "{{builderRegistry.address}}"
       abi: BuilderRegistryRootstockCollectiveV2
       startBlock: {{builderRegistry.startBlock}}
-      #endBlock: {{builderRegistry.migrationV3}}
+      #endBlock: {{builderRegistry.upgradeV3}} disabled until upgrade is completed
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
@@ -139,7 +139,8 @@ dataSources:
     source:
       address: "{{builderRegistry.address}}"
       abi: BuilderRegistryRootstockCollective
-      startBlock: {{builderRegistry.migrationV3}}
+      startBlock: {{builderRegistry.upgradeV3}}
+      endBlock: {{builderRegistry.upgradeV3}} # disabled until upgrade is completed
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9

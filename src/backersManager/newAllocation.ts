@@ -14,9 +14,16 @@ import { Address, BigInt } from "@graphprotocol/graph-ts";
 
 export function handleNewAllocation(event: NewAllocationEvent): void {
   _handleBackerStakingHistory(event);
-  _handleBuilder(event);
-  _handleBacker(event);
-  _handleBackerToBuilder(event);
+
+  const gaugeToBuilder = GaugeToBuilder.load(event.params.gauge_);
+  if (gaugeToBuilder == null) {
+    logEntityNotFound('GaugeToBuilder', event.params.gauge_.toHexString(), 'handleNewAllocation');
+    return;
+  }
+  
+  _handleBuilder(event, gaugeToBuilder  );
+  _handleBacker(event, gaugeToBuilder);
+  _handleBackerToBuilder(event, gaugeToBuilder);
 }
 
 function _handleBackerStakingHistory(event: NewAllocationEvent): void {
@@ -81,13 +88,7 @@ function _getPreviousAllocation(gaugeToBuilder: GaugeToBuilder, backer: Address)
   return previousAllocation;
 }
 
-function _handleBuilder(event: NewAllocationEvent): void {
-  const gaugeToBuilder = GaugeToBuilder.load(event.params.gauge_);
-  if (gaugeToBuilder == null) {
-    logEntityNotFound('GaugeToBuilder', event.params.gauge_.toHexString(), 'NewAllocation.handleBuilder');
-    return;
-  }
-
+function _handleBuilder(event: NewAllocationEvent, gaugeToBuilder: GaugeToBuilder): void {
   const builder = Builder.load(gaugeToBuilder.builder);
   if (builder == null) {
     logEntityNotFound('Builder', gaugeToBuilder.builder.toString(), 'NewAllocation.handleBuilder');
@@ -110,17 +111,12 @@ function _handleBuilder(event: NewAllocationEvent): void {
   builder.save();
 }
 
-function _handleBacker(event: NewAllocationEvent): void {
+function _handleBacker(event: NewAllocationEvent, gaugeToBuilder: GaugeToBuilder): void {
   let backer = Backer.load(event.params.backer_);
   if (backer == null) {
     backer = new Backer(event.params.backer_);
     backer.totalAllocation = DEFAULT_BIGINT;
     backer.isBlacklisted = false;
-  }
-  const gaugeToBuilder = GaugeToBuilder.load(event.params.gauge_);
-  if (gaugeToBuilder == null) {
-    logEntityNotFound('GaugeToBuilder', event.params.gauge_.toHexString(), 'NewAllocation.handleBacker');
-    return;
   }
 
   const previousAllocation = _getPreviousAllocation(gaugeToBuilder, event.params.backer_);
@@ -129,13 +125,7 @@ function _handleBacker(event: NewAllocationEvent): void {
   backer.save();
 }
 
-function _handleBackerToBuilder(event: NewAllocationEvent): void {
-  const gaugeToBuilder = GaugeToBuilder.load(event.params.gauge_);
-  if (gaugeToBuilder == null) {
-    logEntityNotFound('GaugeToBuilder', event.params.gauge_.toHexString(), 'NewAllocation.handleBackerToBuilder');
-    return;
-  }
-
+function _handleBackerToBuilder(event: NewAllocationEvent, gaugeToBuilder: GaugeToBuilder): void {
   let backerToBuilder = BackerToBuilder.load(
     event.params.backer_.concat(gaugeToBuilder.builder)
   );
