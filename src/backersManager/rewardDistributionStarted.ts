@@ -24,6 +24,5 @@ export function handleRewardDistributionStarted(
   );
   cycle.rewardsERC20 = rewardDistributor.defaultRewardTokenAmount();
   cycle.rewardsRBTC = rewardDistributor.defaultRewardCoinbaseAmount();
-
   cycle.save();
 }

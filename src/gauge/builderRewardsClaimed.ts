@@ -22,7 +22,5 @@ export function handleBuilderRewardsClaimed(
   rewardsClaimed.builder = event.params.builder_;
   rewardsClaimed.token = event.params.rewardToken_;
   rewardsClaimed.amount = rewardsClaimed.amount.plus(event.params.amount_);
-
   rewardsClaimed.save();
-  builder.save();
 }

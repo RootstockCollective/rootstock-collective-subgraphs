@@ -228,3 +228,5 @@ templates:
           handler: handleBackerRewardsClaimed
         - event: BuilderRewardsClaimed(indexed address,indexed address,uint256)
           handler: handleBuilderRewardsClaimed
+        - event: RewardSharesUpdated(uint256)
+          handler: handleRewardSharesUpdated

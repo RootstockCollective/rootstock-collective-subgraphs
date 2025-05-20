@@ -35,7 +35,6 @@ function _handleBacker(event: BackerRewardsClaimedEvent): void {
   rewardsClaimed.backer = event.params.backer_;
   rewardsClaimed.token = event.params.rewardToken_;
   rewardsClaimed.amount = rewardsClaimed.amount.plus(event.params.amount_);
-
   rewardsClaimed.save();
 }
 
@@ -64,6 +63,5 @@ function _handleBackerToBuilder(event: BackerRewardsClaimedEvent): void {
   rewardsClaimed.backerToBuilder = backerToBuilderId;
   rewardsClaimed.token = event.params.rewardToken_;
   rewardsClaimed.amount = rewardsClaimed.amount.plus(event.params.amount_);
-
   rewardsClaimed.save();
 }

@@ -614,25 +614,6 @@
     },
     {
         "type": "event",
-        "name": "NewAllocation",
-        "inputs": [
-            {
-                "name": "backer_",
-                "type": "address",
-                "indexed": true,
-                "internalType": "address"
-            },
-            {
-                "name": "allocation_",
-                "type": "uint256",
-                "indexed": false,
-                "internalType": "uint256"
-            }
-        ],
-        "anonymous": false
-    },
-    {
-        "type": "event",
         "name": "NotifyReward",
         "inputs": [
             {
@@ -649,6 +630,19 @@
             },
             {
                 "name": "backersAmount_",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "RewardSharesUpdated",
+        "inputs": [
+            {
+                "name": "rewardShares_",
                 "type": "uint256",
                 "indexed": false,
                 "internalType": "uint256"

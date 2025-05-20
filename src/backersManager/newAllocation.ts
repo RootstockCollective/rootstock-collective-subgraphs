@@ -51,7 +51,6 @@ function _handleBackerStakingHistory(event: NewAllocationEvent): void {
   backer.lastBlockNumber = event.block.number;
   backer.lastBlockTimestamp = event.block.timestamp;
   backer.backerTotalAllocation = backerTotalAllocation;
-
   backer.save();
 
   const gaugeId = backerAddress.concat(event.params.gauge_);
@@ -72,7 +71,6 @@ function _handleBackerStakingHistory(event: NewAllocationEvent): void {
   gauge.allocation = event.params.allocation_;
   gauge.lastBlockNumber = event.block.number;
   gauge.lastBlockTimestamp = event.block.timestamp;
-
   gauge.save();
 }
 
@@ -121,7 +119,6 @@ function _handleBacker(event: NewAllocationEvent, gaugeToBuilder: GaugeToBuilder
 
   const previousAllocation = _getPreviousAllocation(gaugeToBuilder, event.params.backer_);
   backer.totalAllocation = backer.totalAllocation.plus(event.params.allocation_).minus(previousAllocation);
-
   backer.save();
 }
 
@@ -138,6 +135,5 @@ function _handleBackerToBuilder(event: NewAllocationEvent, gaugeToBuilder: Gauge
     backerToBuilder.builderState = gaugeToBuilder.builder;
   }
   backerToBuilder.totalAllocation = event.params.allocation_;
-
   backerToBuilder.save();
 }

@@ -11,6 +11,5 @@ export function handleBackerRewardsOptedIn(
     backer.totalAllocation = DEFAULT_BIGINT;
   }
   backer.isBlacklisted = false;
-
   backer.save();
 }

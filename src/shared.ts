@@ -31,7 +31,6 @@ export function gaugeCreated(builder: Address, gauge: Address): void {
 export function communityApproved(builder: Address): void {
   const builderState = loadOrCreateBuilderState(builder);
   builderState.communityApproved = true;
-
   builderState.save();
 }
 
@@ -72,7 +71,6 @@ export function communityBanned(builder: Address): void {
     return;
   }
   builderState.communityApproved = false;
-
   builderState.save();
 }
 
@@ -90,7 +88,6 @@ export function kycApproved(builder: Address): void {
     return;
   }
   builderState.kycApproved = true;
-
   builderState.save();
 }
 
@@ -108,7 +105,6 @@ export function kycRevoked(builder: Address): void {
     return;
   }
   builderState.kycApproved = false;
-
   builderState.save();
 }
 
@@ -116,7 +112,6 @@ export function kycPaused(builder: Address, reason: Bytes): void {
   const builderState = loadOrCreateBuilderState(builder);
   builderState.kycPaused = true;
   builderState.pausedReason = reason;
-
   builderState.save();
 }
 
@@ -127,7 +122,6 @@ export function kycResumed(builder_: Address): void {
     return;
   }
   builderState.kycPaused = false;
-
   builderState.save();
 }
 
@@ -145,7 +139,6 @@ export function selfPaused(builder: Address): void {
     return;
   }
   builderState.selfPaused = true;
-
   builderState.save();
 }
 
@@ -163,10 +156,9 @@ export function selfResumed(builder: Address, rewardPercentage: BigInt, cooldown
     return;
   }
   builderState.selfPaused = false;
+  builderState.save();
 
   updateBackerRewardPercentage(builder, rewardPercentage, cooldown, timestamp);
-
-  builderState.save();
 }
 
 export function rewardReceiverUpdated(
@@ -179,7 +171,6 @@ export function rewardReceiverUpdated(
     return;
   }
   builderEntity.rewardReceiver = newRewardReceiver;
-
   builderEntity.save();
 }
 
@@ -200,7 +191,7 @@ function resumeBuilder(builderEntity: Builder): void {
 
   const cycle = loadOrCreateCycle(Address.fromBytes(contractConfig.backersManager));
   const totalPotentialReward = cycle.totalPotentialReward.plus(builderEntity.rewardShares);
-  cycle.totalPotentialReward = totalPotentialReward
+  cycle.totalPotentialReward = totalPotentialReward;
   cycle.save();
 }
 
@@ -230,4 +221,3 @@ function updateBackerRewardPercentage(builder: Address, rewardPercentage: BigInt
   backerRewardPercentage.next = rewardPercentage;
   backerRewardPercentage.save();
 }
-
