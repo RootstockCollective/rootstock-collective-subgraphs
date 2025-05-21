@@ -31,46 +31,46 @@ function _handleBackerStakingHistory(event: NewAllocationEvent): void {
   const backersManagerContract = BackersManagerRootstockCollectiveContract.bind(
     event.address
   );
-  const backerTotalAllocation =
+  const backerTotalAllocation_ =
     backersManagerContract.backerTotalAllocation(backerAddress);
 
   let backer = BackerStakingHistory.load(backerAddress);
 
   if (backer == null) {
     backer = new BackerStakingHistory(backerAddress);
-    backer.accumulatedTime = DEFAULT_BIGINT;
-    backer.backerTotalAllocation = DEFAULT_BIGINT;
+    backer.accumulatedTime_ = DEFAULT_BIGINT;
+    backer.backerTotalAllocation_ = DEFAULT_BIGINT;
   }
 
-  if (backer.backerTotalAllocation.gt(DEFAULT_BIGINT)) {
+  if (backer.backerTotalAllocation_.gt(DEFAULT_BIGINT)) {
     const lastStakedSeconds = event.block.timestamp.minus(
-      backer.lastBlockTimestamp
+      backer.lastBlockTimestamp_
     );
-    backer.accumulatedTime = backer.accumulatedTime.plus(lastStakedSeconds);
+    backer.accumulatedTime_ = backer.accumulatedTime_.plus(lastStakedSeconds);
   }
-  backer.lastBlockNumber = event.block.number;
-  backer.lastBlockTimestamp = event.block.timestamp;
-  backer.backerTotalAllocation = backerTotalAllocation;
+  backer.lastBlockNumber_ = event.block.number;
+  backer.lastBlockTimestamp_ = event.block.timestamp;
+  backer.backerTotalAllocation_ = backerTotalAllocation_;
   backer.save();
 
   const gaugeId = backerAddress.concat(event.params.gauge_);
   let gauge = GaugeStakingHistory.load(gaugeId);
   if (gauge == null) {
     gauge = new GaugeStakingHistory(gaugeId);
-    gauge.gauge = event.params.gauge_;
-    gauge.accumulatedAllocationsTime = DEFAULT_BIGINT;
-    gauge.backer = backerAddress;
+    gauge.gauge_ = event.params.gauge_;
+    gauge.accumulatedAllocationsTime_ = DEFAULT_BIGINT;
+    gauge.backer_ = backerAddress;
   } else {
     const lastStakedSeconds = event.block.timestamp.minus(
-      gauge.lastBlockTimestamp
+      gauge.lastBlockTimestamp_
     );
-    gauge.accumulatedAllocationsTime = gauge.accumulatedAllocationsTime.plus(
-      gauge.allocation.times(lastStakedSeconds)
+    gauge.accumulatedAllocationsTime_ = gauge.accumulatedAllocationsTime_.plus(
+      gauge.allocation_.times(lastStakedSeconds)
     );
   }
-  gauge.allocation = event.params.allocation_;
-  gauge.lastBlockNumber = event.block.number;
-  gauge.lastBlockTimestamp = event.block.timestamp;
+  gauge.allocation_ = event.params.allocation_;
+  gauge.lastBlockNumber_ = event.block.number;
+  gauge.lastBlockTimestamp_ = event.block.timestamp;
   gauge.save();
 }
 

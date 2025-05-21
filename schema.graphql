@@ -1,20 +1,20 @@
 type BackerStakingHistory @entity(immutable: false) {
   id: Bytes!
-  backerTotalAllocation: BigInt!
-  accumulatedTime: BigInt!
-  lastBlockNumber: BigInt!
-  lastBlockTimestamp: BigInt!
-  gauges: [GaugeStakingHistory!]! @derivedFrom(field: "backer")
+  backerTotalAllocation_: BigInt!
+  accumulatedTime_: BigInt!
+  lastBlockNumber_: BigInt!
+  lastBlockTimestamp_: BigInt!
+  gauges_: [GaugeStakingHistory!]! @derivedFrom(field: "backer_")
 }
 
 type GaugeStakingHistory @entity(immutable: false) {
   id: Bytes!
-  gauge: Bytes! # address
-  backer: BackerStakingHistory!
-  allocation: BigInt!
-  accumulatedAllocationsTime: BigInt!
-  lastBlockNumber: BigInt!
-  lastBlockTimestamp: BigInt!
+  gauge_: Bytes! # address
+  backer_: BackerStakingHistory!
+  allocation_: BigInt!
+  accumulatedAllocationsTime_: BigInt!
+  lastBlockNumber_: BigInt!
+  lastBlockTimestamp_: BigInt!
 }
 
 type Builder @entity(immutable: false) {
