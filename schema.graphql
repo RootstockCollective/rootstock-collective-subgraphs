@@ -1,4 +1,4 @@
-type BackerStakingHistory @entity {
+type BackerStakingHistory @entity(immutable: false) {
   id: Bytes!
   backerTotalAllocation_: BigInt!
   accumulatedTime_: BigInt!
@@ -7,7 +7,7 @@ type BackerStakingHistory @entity {
   gauges_: [GaugeStakingHistory!]! @derivedFrom(field: "backer_")
 }
 
-type GaugeStakingHistory @entity {
+type GaugeStakingHistory @entity(immutable: false) {
   id: Bytes!
   gauge_: Bytes! # address
   backer_: BackerStakingHistory!
@@ -15,4 +15,109 @@ type GaugeStakingHistory @entity {
   accumulatedAllocationsTime_: BigInt!
   lastBlockNumber_: BigInt!
   lastBlockTimestamp_: BigInt!
+}
+
+type Builder @entity(immutable: false) {
+  id: Bytes!
+  gauge: Bytes!
+  backerRewardPercentage: BackerRewardPercentage! @derivedFrom(field: "builder")
+  rewardReceiver: Bytes!
+  state: BuilderState! @derivedFrom(field: "builder")
+  isHalted: Boolean!
+  lastCycleRewards: BigInt!
+  totalAllocation: BigInt!
+  rewardShares: BigInt!
+  proposals: [Proposal!]! @derivedFrom(field: "builder")
+  rewardsClaimed: [BuilderRewardsClaimed!]! @derivedFrom(field: "builder")
+}
+
+type BuilderState @entity(immutable: false) {
+  id: Bytes!
+  builder: Builder!
+  initialized: Boolean!
+  kycApproved: Boolean!
+  communityApproved: Boolean!
+  kycPaused: Boolean!
+  selfPaused: Boolean!
+  pausedReason: Bytes!
+}
+
+type BackerRewardPercentage @entity(immutable: false) { 
+  id: Bytes!
+  builder: Builder!
+  previous: BigInt!
+  next: BigInt!
+  cooldownEndTime: BigInt!
+}
+
+type GaugeToBuilder @entity(immutable: true) { 
+  id: Bytes!
+  builder: Bytes!
+}
+
+type BuilderRewardsClaimed @entity(immutable: false) {
+  id: Bytes!
+  token: Bytes!
+  amount: BigInt!
+  builder: Builder! 
+}
+
+
+type Proposal @entity(immutable: false) {
+  id: Bytes!
+  description: String!
+  link: String!
+  status: String!
+  proposalType: String!
+  builder: Builder!
+}
+
+type Backer @entity(immutable: false) {
+  id: Bytes!
+  isBlacklisted: Boolean!
+  totalAllocation: BigInt!
+  builders: [BackerToBuilder!] @derivedFrom(field: "backer")
+  rewardsClaimed: [BackersRewardsClaimed!] @derivedFrom(field: "backer")
+}
+
+type BackersRewardsClaimed @entity(immutable: false) {
+  id: Bytes!
+  token: Bytes!
+  amount: BigInt!
+  backer: Backer! 
+}
+
+type BackerToBuilder @entity(immutable: false) {
+  id: Bytes!
+  totalAllocation: BigInt!
+  backer: Backer!
+  builder: Builder!
+  builderState: BuilderState!
+  rewardsClaimed: [BackerToBuilderRewardsClaimed!] @derivedFrom(field: "backerToBuilder")
+}
+
+type BackerToBuilderRewardsClaimed @entity(immutable: false) {
+  id: Bytes!
+  token: Bytes!
+  amount: BigInt!
+  backerToBuilder: BackerToBuilder! 
+}
+
+type Cycle @entity(immutable: false) {
+  id: Bytes!
+  totalPotentialReward: BigInt!
+  rewardsERC20: BigInt!
+  rewardsRBTC: BigInt!
+  onDistributionPeriod: Boolean!
+  periodFinish: BigInt!
+  cycleDuration: BigInt!
+  distributionDuration: BigInt!
+}
+
+type ContractConfig @entity(immutable: false) {
+  id: Bytes!
+  backersManager: Bytes!
+  builderRegistry: Bytes!
+  rewardDistributor: Bytes!
+  builders: [Bytes!]!
 }

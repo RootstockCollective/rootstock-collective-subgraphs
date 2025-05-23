@@ -1,0 +1,12 @@
+export { handleBuilderActivated } from "./builderActivated";
+export { handleBuilderRewardReceiverReplacementApproved } from "./builderRewardReceiverReplacementApproved";
+export { handleCommunityApproved } from "./communityApproved";
+export { handleDewhitelisted } from "./dewhitelisted";
+export { handleGaugeCreated } from "./gaugeCreated";
+export { handleKYCApproved } from "./kycApproved";
+export { handleKYCRevoked } from "./kycRevoked";
+export { handlePaused } from "./paused";
+export { handleUnpaused } from "./unpaused";
+export { handleRevoked } from "./revoked";
+export { handlePermitted } from "./permitted";
+export { handleBackerRewardPercentageUpdateScheduled } from "./backerRewardPercentageUpdateScheduled";

@@ -2,10 +2,16 @@
     "network": "rootstock-testnet",
     "backersManager": {
         "address": "0xb7143af8C7afa3a170E183bE24127bF781Fb89B7",
-        "startBlock": 6068555
+        "startBlock": 6068555,
+        "upgradeV2": 6071592
     },
     "builderRegistry": {
         "address": "0xDf1ED223f6EC3cC5e57ed5BeaE8031d6BD37516d",
-        "startBlock": 6069715
+        "startBlock": 6069715,
+        "upgradeV3": 6388553
+    },
+    "rewardDistributor": {
+        "address": "0xa7CC0f00Ec08F8F4D02Ca8f32aE78b05628c5D69",
+        "startBlock": 6068553
     }
 }
