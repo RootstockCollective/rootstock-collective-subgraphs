@@ -3,5 +3,5 @@ import { communityBanned } from "../shared";
 
 
 export function handleCommunityBanned(event: CommunityBannedEvent): void {
-  communityBanned(event.params.builder_);
+  communityBanned(event.params.builder_, event);
 }

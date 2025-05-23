@@ -2,5 +2,5 @@ import { Whitelisted as WhitelistedEvent } from "../../../generated/BackersManag
 import { communityApproved } from "../../shared";
 
 export function handleWhitelisted(event: WhitelistedEvent): void {
-  communityApproved(event.params.builder_);
+  communityApproved(event.params.builder_, event);
 }

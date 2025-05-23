@@ -2,5 +2,5 @@ import { KYCPaused as KYCPausedEvent } from "../../generated/BuilderRegistryRoot
 import { kycPaused } from "../shared";
 
 export function handleKYCPaused(event: KYCPausedEvent): void {
-  kycPaused(event.params.builder_, event.params.reason_);
+  kycPaused(event.params.builder_, event.params.reason_, event);
 }

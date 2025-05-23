@@ -6,6 +6,7 @@ export function handleBuilderInitialized(event: BuilderInitializedEvent): void {
     event.params.builder_,
     event.params.rewardReceiver_,
     event.params.rewardPercentage_,
-    event.block.timestamp
+    event.block.timestamp,
+    event
   );
 }

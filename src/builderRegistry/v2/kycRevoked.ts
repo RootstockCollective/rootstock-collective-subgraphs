@@ -2,5 +2,5 @@ import { KYCRevoked as KYCRevokedEvent } from "../../../generated/BuilderRegistr
 import { kycRevoked } from "../../shared";
 
 export function handleKYCRevoked(event: KYCRevokedEvent): void {
-  kycRevoked(event.params.builder_);
+  kycRevoked(event.params.builder_, event);
 }

@@ -1,6 +1,6 @@
 import { BuilderRewardsClaimed as BuilderRewardsClaimedEvent } from "../../generated/templates/GaugeRootstockCollective/GaugeRootstockCollective";
 import { Builder, BuilderRewardsClaimed } from "../../generated/schema";
-import { DEFAULT_BIGINT, logEntityNotFound } from "../utils";
+import { DEFAULT_BIGINT, logEntityNotFound, updateBlockInfo } from "../utils";
 
 export function handleBuilderRewardsClaimed(
   event: BuilderRewardsClaimedEvent
@@ -23,4 +23,6 @@ export function handleBuilderRewardsClaimed(
   rewardsClaimed.token = event.params.rewardToken_;
   rewardsClaimed.amount = rewardsClaimed.amount.plus(event.params.amount_);
   rewardsClaimed.save();
+  
+  updateBlockInfo(event, ["BuilderRewardsClaimed"]); 
 }
