@@ -1,20 +1,20 @@
 type BackerStakingHistory @entity(immutable: false) {
   id: Bytes!
-  backerTotalAllocation_: BigInt!
-  accumulatedTime_: BigInt!
-  lastBlockNumber_: BigInt!
-  lastBlockTimestamp_: BigInt!
-  gauges_: [GaugeStakingHistory!]! @derivedFrom(field: "backer_")
+  backerTotalAllocation: BigInt!
+  accumulatedTime: BigInt!
+  lastBlockNumber: BigInt!
+  lastBlockTimestamp: BigInt!
+  gauges: [GaugeStakingHistory!]! @derivedFrom(field: "backer")
 }
 
 type GaugeStakingHistory @entity(immutable: false) {
   id: Bytes!
-  gauge_: Bytes! # address
-  backer_: BackerStakingHistory!
-  allocation_: BigInt!
-  accumulatedAllocationsTime_: BigInt!
-  lastBlockNumber_: BigInt!
-  lastBlockTimestamp_: BigInt!
+  gauge: Bytes! # address
+  backer: BackerStakingHistory!
+  allocation: BigInt!
+  accumulatedAllocationsTime: BigInt!
+  lastBlockNumber: BigInt!
+  lastBlockTimestamp: BigInt!
 }
 
 type Builder @entity(immutable: false) {
@@ -120,4 +120,14 @@ type ContractConfig @entity(immutable: false) {
   builderRegistry: Bytes!
   rewardDistributor: Bytes!
   builders: [Bytes!]!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  blockHash: Bytes!
+}
+
+type BlockChangeLog @entity(immutable: false) {
+  id: Bytes!                      # blockHash
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  updatedEntities: [String!]! 
 }

@@ -10,6 +10,9 @@ export function handleUpgraded(event: UpgradedEvent): void {
     contractConfig.backersManager = ZERO_ADDRESS;
     contractConfig.builderRegistry = ZERO_ADDRESS;
     contractConfig.builders = [];
+    contractConfig.blockNumber = event.block.number;
+    contractConfig.blockTimestamp = event.block.timestamp;
+    contractConfig.blockHash = event.block.hash;
   }
   contractConfig.rewardDistributor = event.address;
 

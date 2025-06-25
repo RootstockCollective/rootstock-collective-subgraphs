@@ -2,5 +2,5 @@ import { KYCResumed as KYCResumedEvent } from "../../generated/BuilderRegistryRo
 import { kycResumed } from "../shared";
 
 export function handleKYCResumed(event: KYCResumedEvent): void {
-  kycResumed(event.params.builder_);
+  kycResumed(event.params.builder_, event);
 }

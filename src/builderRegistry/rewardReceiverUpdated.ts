@@ -4,5 +4,5 @@ import { rewardReceiverUpdated } from "../shared";
 export function handleRewardReceiverUpdated(
   event: RewardReceiverUpdatedEvent
 ): void {
-  rewardReceiverUpdated(event.params.builder_, event.params.newRewardReceiver_);
+  rewardReceiverUpdated(event.params.builder_, event.params.newRewardReceiver_, event);
 }

@@ -9,7 +9,7 @@ import {
 } from "../../generated/schema";
 import { BackersManagerRootstockCollective as BackersManagerRootstockCollectiveContract } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
 import { GaugeRootstockCollective as GaugeRootstockCollectiveContract } from "../../generated/templates/GaugeRootstockCollective/GaugeRootstockCollective";
-import { DEFAULT_BIGINT, loadOrCreateCycle, logEntityNotFound } from "../utils";
+import { DEFAULT_BIGINT, loadOrCreateCycle, logEntityNotFound, updateBlockInfo } from "../utils";
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 
 export function handleNewAllocation(event: NewAllocationEvent): void {
@@ -24,6 +24,8 @@ export function handleNewAllocation(event: NewAllocationEvent): void {
   _handleBuilder(event, gaugeToBuilder  );
   _handleBacker(event, gaugeToBuilder);
   _handleBackerToBuilder(event, gaugeToBuilder);
+
+  updateBlockInfo(event, ["Builder", "Backer", "BackerToBuilder", "Cycle", "BackerStakingHistory","GaugeStakingHistory"]);
 }
 
 function _handleBackerStakingHistory(event: NewAllocationEvent): void {
@@ -31,46 +33,46 @@ function _handleBackerStakingHistory(event: NewAllocationEvent): void {
   const backersManagerContract = BackersManagerRootstockCollectiveContract.bind(
     event.address
   );
-  const backerTotalAllocation_ =
+  const backerTotalAllocation =
     backersManagerContract.backerTotalAllocation(backerAddress);
 
   let backer = BackerStakingHistory.load(backerAddress);
 
   if (backer == null) {
     backer = new BackerStakingHistory(backerAddress);
-    backer.accumulatedTime_ = DEFAULT_BIGINT;
-    backer.backerTotalAllocation_ = DEFAULT_BIGINT;
+    backer.accumulatedTime = DEFAULT_BIGINT;
+    backer.backerTotalAllocation = DEFAULT_BIGINT;
   }
 
-  if (backer.backerTotalAllocation_.gt(DEFAULT_BIGINT)) {
+  if (backer.backerTotalAllocation.gt(DEFAULT_BIGINT)) {
     const lastStakedSeconds = event.block.timestamp.minus(
-      backer.lastBlockTimestamp_
+      backer.lastBlockTimestamp
     );
-    backer.accumulatedTime_ = backer.accumulatedTime_.plus(lastStakedSeconds);
+    backer.accumulatedTime = backer.accumulatedTime.plus(lastStakedSeconds);
   }
-  backer.lastBlockNumber_ = event.block.number;
-  backer.lastBlockTimestamp_ = event.block.timestamp;
-  backer.backerTotalAllocation_ = backerTotalAllocation_;
+  backer.lastBlockNumber = event.block.number;
+  backer.lastBlockTimestamp = event.block.timestamp;
+  backer.backerTotalAllocation = backerTotalAllocation;
   backer.save();
 
   const gaugeId = backerAddress.concat(event.params.gauge_);
   let gauge = GaugeStakingHistory.load(gaugeId);
   if (gauge == null) {
     gauge = new GaugeStakingHistory(gaugeId);
-    gauge.gauge_ = event.params.gauge_;
-    gauge.accumulatedAllocationsTime_ = DEFAULT_BIGINT;
-    gauge.backer_ = backerAddress;
+    gauge.gauge = event.params.gauge_;
+    gauge.accumulatedAllocationsTime = DEFAULT_BIGINT;
+    gauge.backer = backerAddress;
   } else {
     const lastStakedSeconds = event.block.timestamp.minus(
-      gauge.lastBlockTimestamp_
+      gauge.lastBlockTimestamp
     );
-    gauge.accumulatedAllocationsTime_ = gauge.accumulatedAllocationsTime_.plus(
-      gauge.allocation_.times(lastStakedSeconds)
+    gauge.accumulatedAllocationsTime = gauge.accumulatedAllocationsTime.plus(
+      gauge.allocation.times(lastStakedSeconds)
     );
   }
-  gauge.allocation_ = event.params.allocation_;
-  gauge.lastBlockNumber_ = event.block.number;
-  gauge.lastBlockTimestamp_ = event.block.timestamp;
+  gauge.allocation = event.params.allocation_;
+  gauge.lastBlockNumber = event.block.number;
+  gauge.lastBlockTimestamp = event.block.timestamp;
   gauge.save();
 }
 

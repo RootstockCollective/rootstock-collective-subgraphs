@@ -2,5 +2,5 @@ import { SelfPaused as SelfPausedEvent } from "../../generated/BuilderRegistryRo
 import { selfPaused } from "../shared";
 
 export function handleSelfPaused(event: SelfPausedEvent): void {
-  selfPaused(event.params.builder_);
+  selfPaused(event.params.builder_, event);
 }
