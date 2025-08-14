@@ -1,5 +1,5 @@
 import { BigInt, Bytes, BigDecimal, Address, log } from "@graphprotocol/graph-ts";
-import { BackerRewardPercentage, BlockChangeLog, Builder, BuilderState, Cycle, GaugeToBuilder } from "../generated/schema";
+import { BackerRewardPercentage, BlockChangeLog, Builder, BuilderState, Cycle, GlobalMetric } from "../generated/schema";
 import { ContractConfig } from "../generated/schema";
 import { ethereum } from "@graphprotocol/graph-ts";
 
@@ -47,17 +47,16 @@ export function loadOrCreateBackerRewardPercentage(builder: Address): BackerRewa
   return backerRewardPercentage;
 }
 
-export function loadOrCreateCycle(backersManager: Address): Cycle {
-  let cycle = Cycle.load(backersManager);
+export function loadOrCreateCycle(cycleStart: Bytes): Cycle {
+  let cycle = Cycle.load(cycleStart);
   if (cycle == null) {
-    cycle = new Cycle(backersManager);
-    cycle.totalPotentialReward = DEFAULT_BIGINT;
+    cycle = new Cycle(cycleStart);
     cycle.rewardsERC20 = DEFAULT_BIGINT;
     cycle.rewardsRBTC = DEFAULT_BIGINT;
     cycle.onDistributionPeriod = false;
-    cycle.periodFinish = DEFAULT_BIGINT;
     cycle.cycleDuration = DEFAULT_BIGINT;
     cycle.distributionDuration = DEFAULT_BIGINT;
+    cycle.cycleStart = DEFAULT_BIGINT;
   }
 
   return cycle;
@@ -119,15 +118,30 @@ export function updateBlockInfo(event: ethereum.Event, entityNames: string[]): v
   contractConfig.save();
 }
 
-export function updateContractConfig(event: ethereum.Event): void {
-  const contractConfig = ContractConfig.load(CONTRACT_CONFIG_ID);
-  if (contractConfig == null) {
-    logEntityNotFound('ContractConfig', CONTRACT_CONFIG_ID.toString(), 'Utils.updateContractConfig');
-    return;
+export function loadOrCreateGlobalMetric(): GlobalMetric {
+  let globalMetric = GlobalMetric.load(CONTRACT_CONFIG_ID);
+  if (globalMetric == null) {
+    globalMetric = new GlobalMetric(CONTRACT_CONFIG_ID);
+    globalMetric.totalPotentialReward = DEFAULT_BIGINT;
+    globalMetric.builders = [];
+    globalMetric.totalAllocation = DEFAULT_BIGINT;
   }
-  
-  contractConfig.blockNumber = event.block.number;
-  contractConfig.blockTimestamp = event.block.timestamp;
-  contractConfig.blockHash = event.block.hash;
-  contractConfig.save();
+
+  return globalMetric;
+}
+
+export function loadOrCreateContractConfig(): ContractConfig {
+  const id = CONTRACT_CONFIG_ID;
+  let contractConfig = ContractConfig.load(id);
+  if (contractConfig == null) {
+    contractConfig = new ContractConfig(id);
+    contractConfig.builderRegistry = ZERO_ADDRESS;
+    contractConfig.rewardDistributor = ZERO_ADDRESS;
+    contractConfig.backersManager = ZERO_ADDRESS;
+    contractConfig.blockNumber = DEFAULT_BIGINT;
+    contractConfig.blockTimestamp = DEFAULT_BIGINT;
+    contractConfig.blockHash = DEFAULT_BYTES;
+  }
+
+  return contractConfig;
 }

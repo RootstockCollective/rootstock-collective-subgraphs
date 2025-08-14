@@ -8,7 +8,7 @@
     "prepare:cr-qa": "mustache cr.qa.json subgraph.template.yaml > subgraph.yaml",
     "prepare:release-candidate-testnet": "mustache release-candidate-testnet.json subgraph.template.yaml > subgraph.yaml",
     "prepare:release-candidate-mainnet": "mustache release-candidate-mainnet.json subgraph.template.yaml > subgraph.yaml",
-    "prepare:mainnet": "mustache mainnet.json subgraph.template.yaml > subgraph.yaml",  
+    "prepare:mainnet": "mustache mainnet.json subgraph.template.yaml > subgraph.yaml",
     "deploy:dev": "npm run prepare:dev && graph deploy --node https://api.studio.thegraph.com/deploy/ rootstockcollective-collective-rewards-dev",
     "deploy:dao-qa": "npm run prepare:dao-qa && graph deploy --node https://api.studio.thegraph.com/deploy/ rootstockcollective-collective-rewards-dao-qa",
     "deploy:cr-qa": "npm run prepare:cr-qa && graph deploy --node https://api.studio.thegraph.com/deploy/ rootstockcollective-collective-rewards-cr-qa",
@@ -18,8 +18,8 @@
     "test": "graph test"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "^0.97.0",
-    "@graphprotocol/graph-ts": "0.32.0"
+    "@graphprotocol/graph-cli": "^0.97.1",
+    "@graphprotocol/graph-ts": "^0.32.0"
   },
   "devDependencies": {
     "matchstick-as": "0.5.0",

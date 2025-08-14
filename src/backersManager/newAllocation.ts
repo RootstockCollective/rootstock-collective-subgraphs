@@ -6,11 +6,12 @@ import {
   BackerToBuilder,
   GaugeToBuilder,
   Builder,
+  DailyAllocation,
 } from "../../generated/schema";
 import { BackersManagerRootstockCollective as BackersManagerRootstockCollectiveContract } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
 import { GaugeRootstockCollective as GaugeRootstockCollectiveContract } from "../../generated/templates/GaugeRootstockCollective/GaugeRootstockCollective";
-import { DEFAULT_BIGINT, loadOrCreateCycle, logEntityNotFound, updateBlockInfo } from "../utils";
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { DEFAULT_BIGINT, loadOrCreateGlobalMetric, logEntityNotFound, updateBlockInfo } from "../utils";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 
 export function handleNewAllocation(event: NewAllocationEvent): void {
   _handleBackerStakingHistory(event);
@@ -21,11 +22,12 @@ export function handleNewAllocation(event: NewAllocationEvent): void {
     return;
   }
   
-  _handleBuilder(event, gaugeToBuilder  );
+  _handleBuilderAndGlobalMetric(event, gaugeToBuilder);
   _handleBacker(event, gaugeToBuilder);
   _handleBackerToBuilder(event, gaugeToBuilder);
+  _handleDailyAllocation(event);
 
-  updateBlockInfo(event, ["Builder", "Backer", "BackerToBuilder", "Cycle", "BackerStakingHistory","GaugeStakingHistory"]);
+  updateBlockInfo(event, ["Builder", "Backer", "BackerToBuilder", "GlobalMetric", "BackerStakingHistory", "GaugeStakingHistory", "DailyAllocation"]);
 }
 
 function _handleBackerStakingHistory(event: NewAllocationEvent): void {
@@ -88,7 +90,7 @@ function _getPreviousAllocation(gaugeToBuilder: GaugeToBuilder, backer: Address)
   return previousAllocation;
 }
 
-function _handleBuilder(event: NewAllocationEvent, gaugeToBuilder: GaugeToBuilder): void {
+function _handleBuilderAndGlobalMetric(event: NewAllocationEvent, gaugeToBuilder: GaugeToBuilder): void {
   const builder = Builder.load(gaugeToBuilder.builder);
   if (builder == null) {
     logEntityNotFound('Builder', gaugeToBuilder.builder.toString(), 'NewAllocation.handleBuilder');
@@ -101,11 +103,15 @@ function _handleBuilder(event: NewAllocationEvent, gaugeToBuilder: GaugeToBuilde
   const gaugeContract = GaugeRootstockCollectiveContract.bind(event.params.gauge_);
   const rewardShares = gaugeContract.rewardShares();
 
-  const cycle = loadOrCreateCycle(event.address);
+  const globalMetric = loadOrCreateGlobalMetric();
   if(!builder.isHalted) { 
-    cycle.totalPotentialReward = cycle.totalPotentialReward.plus(rewardShares).minus(builder.rewardShares);
-    cycle.save();
- }
+    const backersManagerContract = BackersManagerRootstockCollectiveContract.bind(
+      event.address
+    );
+    globalMetric.totalPotentialReward = backersManagerContract.totalPotentialReward();
+  }
+  globalMetric.totalAllocation = globalMetric.totalAllocation.plus(event.params.allocation_).minus(previousAllocation);
+  globalMetric.save();
 
   builder.rewardShares = rewardShares;
   builder.save();
@@ -138,4 +144,21 @@ function _handleBackerToBuilder(event: NewAllocationEvent, gaugeToBuilder: Gauge
   }
   backerToBuilder.totalAllocation = event.params.allocation_;
   backerToBuilder.save();
+}
+
+function _handleDailyAllocation(event: NewAllocationEvent,): void {
+  const globalMetric = loadOrCreateGlobalMetric();
+
+  const timestamp = event.block.timestamp.toI32();
+  const dayId = timestamp - (timestamp % 86400);
+  const dayIdBytes = Bytes.fromI32(dayId);
+
+  let dailyAllocation = DailyAllocation.load(dayIdBytes);
+  if (dailyAllocation == null) {
+    dailyAllocation = new DailyAllocation(dayIdBytes);
+    dailyAllocation.totalAllocation = DEFAULT_BIGINT;
+  }
+  dailyAllocation.totalAllocation = globalMetric.totalAllocation;
+  dailyAllocation.day = dayId;
+  dailyAllocation.save();
 }

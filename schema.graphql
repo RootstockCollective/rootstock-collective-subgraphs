@@ -62,7 +62,6 @@ type BuilderRewardsClaimed @entity(immutable: false) {
   builder: Builder! 
 }
 
-
 type Proposal @entity(immutable: false) {
   id: Bytes!
   description: String!
@@ -105,13 +104,12 @@ type BackerToBuilderRewardsClaimed @entity(immutable: false) {
 
 type Cycle @entity(immutable: false) {
   id: Bytes!
-  totalPotentialReward: BigInt!
   rewardsERC20: BigInt!
   rewardsRBTC: BigInt!
   onDistributionPeriod: Boolean!
-  periodFinish: BigInt!
   cycleDuration: BigInt!
   distributionDuration: BigInt!
+  cycleStart: BigInt!
 }
 
 type ContractConfig @entity(immutable: false) {
@@ -119,7 +117,6 @@ type ContractConfig @entity(immutable: false) {
   backersManager: Bytes!
   builderRegistry: Bytes!
   rewardDistributor: Bytes!
-  builders: [Bytes!]!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   blockHash: Bytes!
@@ -130,4 +127,17 @@ type BlockChangeLog @entity(immutable: false) {
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   updatedEntities: [String!]! 
+}
+
+type GlobalMetric @entity(immutable: false) { 
+  id: Bytes!
+  builders: [Bytes!]!
+  totalAllocation: BigInt!
+  totalPotentialReward: BigInt!
+}
+
+type DailyAllocation @entity(immutable: false) { 
+  id: Bytes!
+  day: Int!
+  totalAllocation: BigInt!
 }
