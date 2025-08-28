@@ -1,7 +1,7 @@
 import { Address, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
-import { GaugeToBuilder, Builder, BuilderState, ContractConfig } from "../generated/schema";
+import { GaugeToBuilder, Builder, BuilderState } from "../generated/schema";
 import { GaugeRootstockCollective } from "../generated/templates";
-import { CONTRACT_CONFIG_ID, loadOrCreateBuilder, loadOrCreateBackerRewardPercentage, loadOrCreateBuilderState, loadOrCreateCycle, logEntityNotFound, updateBlockInfo } from "./utils";
+import { loadOrCreateBuilder, loadOrCreateBackerRewardPercentage, loadOrCreateBuilderState, logEntityNotFound, updateBlockInfo, loadOrCreateGlobalMetric } from "./utils";
 
 export function gaugeCreated(builder: Address, gauge: Address, event: ethereum.Event): void {
   GaugeRootstockCollective.create(gauge);
@@ -17,16 +17,13 @@ export function gaugeCreated(builder: Address, gauge: Address, event: ethereum.E
   gaugeToBuilder.builder = builder;
   gaugeToBuilder.save();
 
-  const contractConfig = ContractConfig.load(CONTRACT_CONFIG_ID);
-  if (contractConfig == null) {
-    logEntityNotFound('ContractConfig', CONTRACT_CONFIG_ID.toString(), 'Shared.gaugeCreated');
-    return;
-  }
-  const builders = contractConfig.builders;
+  const globalMetric = loadOrCreateGlobalMetric();
+  const builders = globalMetric.builders;
   builders.push(builder);
-  contractConfig.builders = builders;
+  globalMetric.builders = builders;
+  globalMetric.save();
 
-  updateBlockInfo(event, ["Builder", "BackerRewardPercentage", "GaugeToBuilder"]);
+  updateBlockInfo(event, ["Builder", "BackerRewardPercentage", "GaugeToBuilder", "GlobalMetric"]);
 }
 
 export function communityApproved(builder: Address, event: ethereum.Event): void {
@@ -69,7 +66,7 @@ export function communityBanned(builder: Address, event: ethereum.Event): void {
     logEntityNotFound('Builder', builder.toHexString(), 'Shared.communityBanned');
     return;
   }
-  haltBuilder(builderEntity); // Updates Builder and Cycle
+  haltBuilder(builderEntity); // Updates Builder and GlobalMetric
 
   const builderState = BuilderState.load(builder);
   if (builderState == null) {
@@ -79,7 +76,7 @@ export function communityBanned(builder: Address, event: ethereum.Event): void {
   builderState.communityApproved = false;
   builderState.save();
 
-  updateBlockInfo(event, ["Builder", "BuilderState", "Cycle"]);
+  updateBlockInfo(event, ["Builder", "BuilderState", "GlobalMetric"]);
 }
 
 export function kycApproved(builder: Address, event: ethereum.Event): void {
@@ -88,7 +85,7 @@ export function kycApproved(builder: Address, event: ethereum.Event): void {
     logEntityNotFound('Builder', builder.toHexString(), 'Shared.kycApproved');
     return;
   }
-  resumeBuilder(builderEntity); // Updates Builder and Cycle
+  resumeBuilder(builderEntity); // Updates Builder and GlobalMetric
 
   const builderState = BuilderState.load(builder);
   if (builderState == null) {
@@ -98,7 +95,7 @@ export function kycApproved(builder: Address, event: ethereum.Event): void {
   builderState.kycApproved = true;
   builderState.save();
 
-  updateBlockInfo(event, ["Builder", "BuilderState", "Cycle"]);
+  updateBlockInfo(event, ["Builder", "BuilderState", "GlobalMetric"]);
 }
 
 export function kycRevoked(builder: Address, event: ethereum.Event): void {
@@ -107,7 +104,7 @@ export function kycRevoked(builder: Address, event: ethereum.Event): void {
     logEntityNotFound('Builder', builder.toHexString(), 'Shared.kycRevoked');
     return;
   }
-  haltBuilder(builderEntity); // Updates Builder and Cycle
+  haltBuilder(builderEntity); // Updates Builder and GlobalMetric
 
   const builderState = BuilderState.load(builder);
   if (builderState == null) {
@@ -117,7 +114,7 @@ export function kycRevoked(builder: Address, event: ethereum.Event): void {
   builderState.kycApproved = false;
   builderState.save();
 
-  updateBlockInfo(event, ["Builder", "BuilderState", "Cycle"]);
+  updateBlockInfo(event, ["Builder", "BuilderState", "GlobalMetric"]);
 }
 
 export function kycPaused(builder: Address, reason: Bytes, event: ethereum.Event): void {
@@ -166,7 +163,7 @@ export function selfResumed(builder: Address, rewardPercentage: BigInt, cooldown
     logEntityNotFound('Builder', builder.toHexString(), 'Shared.selfResumed');
     return;
   }
-  resumeBuilder(builderEntity); // Updates Builder and Cycle
+  resumeBuilder(builderEntity); // Updates Builder and GlobalMetric
 
   const builderState = BuilderState.load(builder);
   if (builderState == null) {
@@ -177,7 +174,7 @@ export function selfResumed(builder: Address, rewardPercentage: BigInt, cooldown
   builderState.save();
 
   updateBackerRewardPercentage(builder, rewardPercentage, cooldown, timestamp);
-  updateBlockInfo(event, ["Builder", "BuilderState", "BackerRewardPercentage", "Cycle"]);
+  updateBlockInfo(event, ["Builder", "BuilderState", "BackerRewardPercentage", "GlobalMetric"]);
 }
 
 export function rewardReceiverUpdated(
@@ -205,34 +202,20 @@ function resumeBuilder(builderEntity: Builder): void {
   builderEntity.isHalted = false;
   builderEntity.save();
 
-  const id = CONTRACT_CONFIG_ID;
-  const contractConfig = ContractConfig.load(id);
-  if (contractConfig == null) {
-    logEntityNotFound('ContractConfig', id.toString(), 'Shared.resumeBuilder');
-    return;
-  }
-
-  const cycle = loadOrCreateCycle(Address.fromBytes(contractConfig.backersManager));
-  const totalPotentialReward = cycle.totalPotentialReward.plus(builderEntity.rewardShares);
-  cycle.totalPotentialReward = totalPotentialReward;
-  cycle.save();
+  const globalMetric = loadOrCreateGlobalMetric();
+  const totalPotentialReward = globalMetric.totalPotentialReward.plus(builderEntity.rewardShares);
+  globalMetric.totalPotentialReward = totalPotentialReward;
+  globalMetric.save();
 }
 
 function haltBuilder(builderEntity: Builder): void {
   builderEntity.isHalted = true;
   builderEntity.save();
 
-  const id = CONTRACT_CONFIG_ID;
-  const contractConfig = ContractConfig.load(id);
-  if (contractConfig == null) {
-    logEntityNotFound('ContractConfig', id.toString(), 'Shared.haltBuilder');
-    return;
-  }
-
-  const cycle = loadOrCreateCycle(Address.fromBytes(contractConfig.backersManager));
-  const totalPotentialReward = cycle.totalPotentialReward.minus(builderEntity.rewardShares);
-  cycle.totalPotentialReward = totalPotentialReward;
-  cycle.save();
+  const globalMetric = loadOrCreateGlobalMetric();
+  const totalPotentialReward = globalMetric.totalPotentialReward.minus(builderEntity.rewardShares);
+  globalMetric.totalPotentialReward = totalPotentialReward;
+  globalMetric.save();
 }
 
 function updateBackerRewardPercentage(builder: Address, rewardPercentage: BigInt, cooldown: BigInt, timestamp: BigInt): void {

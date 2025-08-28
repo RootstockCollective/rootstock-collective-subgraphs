@@ -1,9 +1,9 @@
 import { RewardDistributionFinished as RewardDistributionFinishedEvent } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
 import { BackersManagerRootstockCollective as BackersManagerRootstockCollectiveContract } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
 import { GaugeRootstockCollective as GaugeRootstockCollectiveContract } from "../../generated/templates/GaugeRootstockCollective/GaugeRootstockCollective";
-import { Builder, ContractConfig, Cycle } from "../../generated/schema";
-import { CONTRACT_CONFIG_ID, logEntityNotFound, updateBlockInfo } from "../utils";
-import { Address } from "@graphprotocol/graph-ts";
+import { Builder } from "../../generated/schema";
+import { loadOrCreateCycle, loadOrCreateGlobalMetric, logEntityNotFound, updateBlockInfo } from "../utils";
+import { Address, Bytes } from "@graphprotocol/graph-ts";
 
 export function handleRewardDistributionFinished(
   event: RewardDistributionFinishedEvent
@@ -11,23 +11,14 @@ export function handleRewardDistributionFinished(
   const backersManagerContract = BackersManagerRootstockCollectiveContract.bind(
     event.address
   );
-
-  const cycle = Cycle.load(event.address);
-  if (cycle == null) {
-    logEntityNotFound('Cycle', event.address.toHexString(), 'handleRewardDistributionFinished');
-    return;
-  }
+  const cycleStart = backersManagerContract.cycleStart(event.block.timestamp);
+  const cycle = loadOrCreateCycle(changetype<Bytes>(Bytes.fromBigInt(cycleStart)));
   cycle.onDistributionPeriod = false;
-  cycle.totalPotentialReward = backersManagerContract.totalPotentialReward();
   cycle.save();
 
-  const contractConfig = ContractConfig.load(CONTRACT_CONFIG_ID);
-  if (contractConfig == null) {
-    logEntityNotFound('ContractConfig', CONTRACT_CONFIG_ID.toString(), 'handleRewardDistributionFinished');
-    return;
-  }
-  for (let i = 0; i < contractConfig.builders.length; i++) {
-    const builder = contractConfig.builders[i];
+  const globalMetric = loadOrCreateGlobalMetric();
+  for (let i = 0; i < globalMetric.builders.length; i++) {
+    const builder = globalMetric.builders[i];
     const builderEntity = Builder.load(builder);
     if (builderEntity == null) {
       logEntityNotFound('Builder', builder.toString(), 'handleRewardDistributionFinished');
@@ -35,10 +26,11 @@ export function handleRewardDistributionFinished(
     }
 
     const gauge = GaugeRootstockCollectiveContract.bind(Address.fromBytes(builderEntity.gauge));
-
     builderEntity.rewardShares = gauge.rewardShares();
     builderEntity.save();
   }
+  globalMetric.totalPotentialReward = backersManagerContract.totalPotentialReward();
+  globalMetric.save();
 
-  updateBlockInfo(event, ["Builder", "Cycle"]);
+  updateBlockInfo(event, ["Builder", "Cycle", "GlobalMetric"]);
 }

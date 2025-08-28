@@ -1,21 +1,23 @@
 import { RewardDistributionStarted as RewardDistributionStartedEvent } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
-import { ContractConfig } from "../../generated/schema";
 import { RewardDistributorRootstockCollective as RewardDistributorRootstockCollectiveContract } from "../../generated/RewardDistributorRootstockCollective/RewardDistributorRootstockCollective";
-import { Address } from "@graphprotocol/graph-ts";
-import { loadOrCreateCycle, CONTRACT_CONFIG_ID, logEntityNotFound, updateBlockInfo } from "../utils";
+import { BackersManagerRootstockCollective as BackersManagerRootstockCollectiveContract } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
+import { Address, Bytes } from "@graphprotocol/graph-ts";
+import { loadOrCreateCycle, updateBlockInfo, loadOrCreateContractConfig } from "../utils";
 
 export function handleRewardDistributionStarted(
   event: RewardDistributionStartedEvent
 ): void {
-  const cycle = loadOrCreateCycle(event.address);
+  const backersManagerContract = BackersManagerRootstockCollectiveContract.bind(
+    event.address
+  );
+  const cycleStart = backersManagerContract.cycleStart(event.block.timestamp);
+  const cycle = loadOrCreateCycle(changetype<Bytes>(Bytes.fromBigInt(cycleStart)));
   cycle.onDistributionPeriod = true;
+  cycle.cycleStart = cycleStart;
+  cycle.cycleDuration = backersManagerContract.getCycleStartAndDuration().getValue1();
+  cycle.distributionDuration = backersManagerContract.distributionDuration();
 
-  const id = CONTRACT_CONFIG_ID;
-  const contractConfig = ContractConfig.load(id);
-  if (contractConfig == null) {
-    logEntityNotFound('ContractConfig', id.toString(), 'handleRewardDistributionStarted');
-    return;
-  }
+  const contractConfig = loadOrCreateContractConfig();
   const rewardDistributorAddress = Address.fromBytes(
     contractConfig.rewardDistributor
   );
