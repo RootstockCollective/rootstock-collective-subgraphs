@@ -54,9 +54,11 @@ export function loadOrCreateCycle(cycleStart: Bytes): Cycle {
     cycle.rewardsERC20 = DEFAULT_BIGINT;
     cycle.rewardsRBTC = DEFAULT_BIGINT;
     cycle.onDistributionPeriod = false;
-    cycle.cycleDuration = DEFAULT_BIGINT;
+    cycle.currentCycleDuration = DEFAULT_BIGINT;
+    cycle.previousCycleDuration = DEFAULT_BIGINT;
     cycle.distributionDuration = DEFAULT_BIGINT;
-    cycle.cycleStart = DEFAULT_BIGINT;
+    cycle.previousCycleStart = DEFAULT_BIGINT;
+    cycle.currentCycleStart = DEFAULT_BIGINT;
   }
 
   return cycle;
