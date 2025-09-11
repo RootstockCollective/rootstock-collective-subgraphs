@@ -1,8 +1,7 @@
 import { RewardDistributionStarted as RewardDistributionStartedEvent } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
-import { RewardDistributorRootstockCollective as RewardDistributorRootstockCollectiveContract } from "../../generated/RewardDistributorRootstockCollective/RewardDistributorRootstockCollective";
 import { BackersManagerRootstockCollective as BackersManagerRootstockCollectiveContract } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
-import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
-import { loadOrCreateCycle, updateBlockInfo, loadOrCreateContractConfig } from "../utils";
+import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { loadOrCreateCycle, updateBlockInfo } from "../utils";
 
 export function handleRewardDistributionStarted(
   event: RewardDistributionStartedEvent
@@ -31,16 +30,6 @@ export function handleRewardDistributionStarted(
   cycle.currentCycleStart = currentCycleStart;
   cycle.currentCycleDuration = backersManagerContract.getCycleStartAndDuration().getValue1();
   cycle.distributionDuration = backersManagerContract.distributionDuration();
-
-  const contractConfig = loadOrCreateContractConfig();
-  const rewardDistributorAddress = Address.fromBytes(
-    contractConfig.rewardDistributor
-  );
-  const rewardDistributor = RewardDistributorRootstockCollectiveContract.bind(
-    rewardDistributorAddress
-  );
-  cycle.rewardsERC20 = rewardDistributor.defaultRewardTokenAmount();
-  cycle.rewardsRBTC = rewardDistributor.defaultRewardCoinbaseAmount();
   cycle.save();
 
   updateBlockInfo(event, ["Cycle"]);
