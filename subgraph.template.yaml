@@ -91,6 +91,8 @@ dataSources:
           handler: handleRewardDistributionFinished
         - event: Upgraded(indexed address)
           handler: handleUpgraded
+        - event: NotifyReward(indexed address,indexed address,uint256)
+          handler: handleNotifyReward
   - kind: ethereum
     name: BuilderRegistryRootstockCollectiveV2
     network: {{network}}

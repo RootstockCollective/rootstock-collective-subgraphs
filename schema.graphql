@@ -107,9 +107,11 @@ type Cycle @entity(immutable: false) {
   rewardsERC20: BigInt!
   rewardsRBTC: BigInt!
   onDistributionPeriod: Boolean!
-  cycleDuration: BigInt!
+  currentCycleDuration: BigInt!
+  previousCycleDuration: BigInt!
   distributionDuration: BigInt!
-  cycleStart: BigInt!
+  previousCycleStart: BigInt!
+  currentCycleStart: BigInt!
 }
 
 type ContractConfig @entity(immutable: false) {
