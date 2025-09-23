@@ -2,7 +2,6 @@ import { BigInt, Bytes, BigDecimal, Address, log } from "@graphprotocol/graph-ts
 import { BackerRewardPercentage, BlockChangeLog, Builder, BuilderState, Cycle, GlobalMetric } from "../generated/schema";
 import { ContractConfig } from "../generated/schema";
 import { ethereum } from "@graphprotocol/graph-ts";
-import { BackersManagerRootstockCollective__cycleDataResult } from "../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
 
 export function loadOrCreateBuilder(builder: Address): Builder {
   let builderEntity = Builder.load(builder);
@@ -98,7 +97,7 @@ export function updateBlockInfo(event: ethereum.Event, entityNames: string[]): v
     blockChangeLog.blockTimestamp = event.block.timestamp;
     blockChangeLog.updatedEntities = [];
   }
-
+  
   const updatedEntities = blockChangeLog.updatedEntities;
   for (let i = 0; i < entityNames.length; i++) {
     const entityName = entityNames[i];
