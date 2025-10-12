@@ -1,7 +1,14 @@
 import { BigInt, Bytes, BigDecimal, Address, log } from "@graphprotocol/graph-ts";
-import { BackerRewardPercentage, BlockChangeLog, Builder, BuilderState, Cycle, GlobalMetric } from "../generated/schema";
+import { BackerRewardPercentage, BlockChangeLog, Builder, BuilderState, Cycle, CycleRewardsAmount, GlobalDefaultAmount, GlobalMetric } from "../generated/schema";
 import { ContractConfig } from "../generated/schema";
 import { ethereum } from "@graphprotocol/graph-ts";
+
+export const COINBASE_ADDRESS = Bytes.fromHexString("0xf7ab6cfaebbadfe8b5494022c4c6db776bd63b6b");
+export const ZERO_ADDRESS = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
+export const DEFAULT_BIGINT = BigInt.zero();
+export const DEFAULT_BYTES = Bytes.empty();
+export const DEFAULT_DECIMAL = BigDecimal.zero();
+export const CONTRACT_CONFIG_ID = Bytes.fromUTF8("default");
 
 export function loadOrCreateBuilder(builder: Address): Builder {
   let builderEntity = Builder.load(builder);
@@ -51,8 +58,6 @@ export function loadOrCreateCycle(cycleStart: Bytes): Cycle {
   let cycle = Cycle.load(cycleStart);
   if (cycle == null) {
     cycle = new Cycle(cycleStart);
-    cycle.rewardsERC20 = DEFAULT_BIGINT;
-    cycle.rewardsRBTC = DEFAULT_BIGINT;
     cycle.onDistributionPeriod = false;
     cycle.currentCycleDuration = DEFAULT_BIGINT;
     cycle.previousCycleDuration = DEFAULT_BIGINT;
@@ -62,6 +67,19 @@ export function loadOrCreateCycle(cycleStart: Bytes): Cycle {
   }
 
   return cycle;
+}
+
+export function loadOrCreateCycleRewards(token: Bytes, cycle: Cycle): CycleRewardsAmount {
+  const id = cycle.id.concat(token);
+  let cycleRewardsAmount = CycleRewardsAmount.load(id);
+  if (cycleRewardsAmount == null) {
+    cycleRewardsAmount = new CycleRewardsAmount(id);
+    cycleRewardsAmount.token = token;
+    cycleRewardsAmount.amount = DEFAULT_BIGINT;
+    cycleRewardsAmount.cycle = cycle.id;
+  }
+
+  return cycleRewardsAmount;
 }
 
 export function loadOrCreateBlockChangeLog(blockHash: Bytes): BlockChangeLog {
@@ -82,12 +100,6 @@ export function logEntityNotFound(entityType: string, entityId: string, context:
     []
   );
 }
-
-export const ZERO_ADDRESS = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
-export const DEFAULT_BIGINT = BigInt.zero();
-export const DEFAULT_BYTES = Bytes.empty();
-export const DEFAULT_DECIMAL = BigDecimal.zero();
-export const CONTRACT_CONFIG_ID = Bytes.fromUTF8("default");
 
 export function updateBlockInfo(event: ethereum.Event, entityNames: string[]): void {
   let blockChangeLog = BlockChangeLog.load(event.block.hash);
@@ -130,6 +142,19 @@ export function loadOrCreateGlobalMetric(): GlobalMetric {
   }
 
   return globalMetric;
+}
+
+export function loadOrCreateGlobalDefaultAmount(token: Bytes, globalMetric: GlobalMetric): GlobalDefaultAmount {
+  const id = globalMetric.id.concat(token);
+  let globalDefaultAmount = GlobalDefaultAmount.load(id);
+  if (globalDefaultAmount == null) {
+    globalDefaultAmount = new GlobalDefaultAmount(id);
+    globalDefaultAmount.token = token;
+    globalDefaultAmount.amount = DEFAULT_BIGINT;
+    globalDefaultAmount.globalMetric = globalMetric.id;
+  }
+
+  return globalDefaultAmount;
 }
 
 export function loadOrCreateContractConfig(): ContractConfig {

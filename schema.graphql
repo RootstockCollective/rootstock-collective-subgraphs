@@ -104,14 +104,20 @@ type BackerToBuilderRewardsClaimed @entity(immutable: false) {
 
 type Cycle @entity(immutable: false) {
   id: Bytes!
-  rewardsERC20: BigInt!
-  rewardsRBTC: BigInt!
   onDistributionPeriod: Boolean!
   currentCycleDuration: BigInt!
   previousCycleDuration: BigInt!
   distributionDuration: BigInt!
   previousCycleStart: BigInt!
   currentCycleStart: BigInt!
+  rewardsAmount: [CycleRewardsAmount!] @derivedFrom(field: "cycle")
+}
+
+type CycleRewardsAmount @entity(immutable: false) { 
+  id: Bytes!
+  token: Bytes!
+  amount: BigInt!
+  cycle: Cycle!
 }
 
 type ContractConfig @entity(immutable: false) {
@@ -125,7 +131,7 @@ type ContractConfig @entity(immutable: false) {
 }
 
 type BlockChangeLog @entity(immutable: false) {
-  id: Bytes!                      # blockHash
+  id: Bytes!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   updatedEntities: [String!]! 
@@ -136,6 +142,14 @@ type GlobalMetric @entity(immutable: false) {
   builders: [Bytes!]!
   totalAllocation: BigInt!
   totalPotentialReward: BigInt!
+  defaultAmount: [GlobalDefaultAmount!] @derivedFrom(field: "globalMetric")
+}
+
+type GlobalDefaultAmount @entity(immutable: false) {  
+  id: Bytes!
+  token: Bytes!
+  amount: BigInt!
+  globalMetric: GlobalMetric!
 }
 
 type DailyAllocation @entity(immutable: false) { 

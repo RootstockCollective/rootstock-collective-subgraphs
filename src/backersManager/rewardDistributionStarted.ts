@@ -9,8 +9,6 @@ export function handleRewardDistributionStarted(
   const backersManagerContract = BackersManagerRootstockCollectiveContract.bind(
     event.address
   );
-
-  backersManagerContract.cycleData();
   const currentCycleStart = backersManagerContract.cycleStart(event.block.timestamp);
 
   const cycle = loadOrCreateCycle(changetype<Bytes>(Bytes.fromBigInt(currentCycleStart)));
