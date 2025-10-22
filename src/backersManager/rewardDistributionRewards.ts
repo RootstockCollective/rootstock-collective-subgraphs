@@ -1,12 +1,12 @@
 import { RewardDistributionRewards as RewardDistributionRewardsEvent } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
 import { BackersManagerRootstockCollective as BackersManagerRootstockCollectiveContract } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
-import { COINBASE_ADDRESS, loadOrCreateCycle, loadOrCreateCycleRewards, updateBlockInfo } from "../utils";
+import { COINBASE_ADDRESS, loadOrCreateCycle, loadOrCreateCycleRewardPerToken, updateBlockInfo } from "../utils";
 import { Bytes } from "@graphprotocol/graph-ts";
 
 export function handleRewardDistributionRewards(
   event: RewardDistributionRewardsEvent
 ): void {
-  
+
   const backersManagerContract = BackersManagerRootstockCollectiveContract.bind(
     event.address
   );
@@ -19,17 +19,17 @@ export function handleRewardDistributionRewards(
   cycle.distributionDuration = backersManagerContract.distributionDuration();
   cycle.save();
 
-  const rifCycleRewards = loadOrCreateCycleRewards(backersManagerContract.rifToken(), cycle);
-  rifCycleRewards.amount = event.params.rifAmount_;
-  rifCycleRewards.save();
+  const rifCycleRewardPerToken = loadOrCreateCycleRewardPerToken(backersManagerContract.rifToken(), cycle);
+  rifCycleRewardPerToken.amount = event.params.rifAmount_;
+  rifCycleRewardPerToken.save();
 
-  const usdrifCycleRewards = loadOrCreateCycleRewards(backersManagerContract.usdrifToken(), cycle);
-  usdrifCycleRewards.amount = event.params.usdrifAmount_;
-  usdrifCycleRewards.save();
+  const usdrifCycleRewardPerToken = loadOrCreateCycleRewardPerToken(backersManagerContract.usdrifToken(), cycle);
+  usdrifCycleRewardPerToken.amount = event.params.usdrifAmount_;
+  usdrifCycleRewardPerToken.save();
 
-  const nativeCycleRewards = loadOrCreateCycleRewards(COINBASE_ADDRESS, cycle);
-  nativeCycleRewards.amount = event.params.nativeAmount_;
-  nativeCycleRewards.save();
+  const nativeCycleRewardPerToken = loadOrCreateCycleRewardPerToken(COINBASE_ADDRESS, cycle);
+  nativeCycleRewardPerToken.amount = event.params.nativeAmount_;
+  nativeCycleRewardPerToken.save();
 
-  updateBlockInfo(event, ["Cycle", "CycleRewards"]);
+  updateBlockInfo(event, ["Cycle", "CycleRewardPerToken"]);
 }

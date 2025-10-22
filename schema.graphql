@@ -110,10 +110,10 @@ type Cycle @entity(immutable: false) {
   distributionDuration: BigInt!
   previousCycleStart: BigInt!
   currentCycleStart: BigInt!
-  rewardsAmount: [CycleRewardsAmount!] @derivedFrom(field: "cycle")
+  rewardPerToken: [CycleRewardPerToken!] @derivedFrom(field: "cycle")
 }
 
-type CycleRewardsAmount @entity(immutable: false) { 
+type CycleRewardPerToken @entity(immutable: false) { 
   id: Bytes!
   token: Bytes!
   amount: BigInt!
@@ -142,10 +142,10 @@ type GlobalMetric @entity(immutable: false) {
   builders: [Bytes!]!
   totalAllocation: BigInt!
   totalPotentialReward: BigInt!
-  defaultAmount: [GlobalDefaultAmount!] @derivedFrom(field: "globalMetric")
+  defaultDistributionPerToken: [GlobalDistributionPerToken!] @derivedFrom(field: "globalMetric")
 }
 
-type GlobalDefaultAmount @entity(immutable: false) {  
+type GlobalDistributionPerToken @entity(immutable: false) {  
   id: Bytes!
   token: Bytes!
   amount: BigInt!

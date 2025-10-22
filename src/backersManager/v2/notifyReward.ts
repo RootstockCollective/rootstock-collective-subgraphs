@@ -1,6 +1,6 @@
 import { NotifyReward as NotifyRewardEvent } from "../../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
 import { BackersManagerRootstockCollective as BackersManagerRootstockCollectiveContract } from "../../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
-import { loadOrCreateCycle, updateBlockInfo, loadOrCreateCycleRewards } from "../../utils";
+import { loadOrCreateCycle, updateBlockInfo, loadOrCreateCycleRewardPerToken } from "../../utils";
 import { Bytes } from "@graphprotocol/graph-ts";
 
 export function handleNotifyReward(
@@ -17,9 +17,9 @@ export function handleNotifyReward(
   cycle.distributionDuration = backersManagerContract.distributionDuration();
   cycle.save();
 
-  const cycleRewardsAmount = loadOrCreateCycleRewards(event.params.rewardToken_, cycle);
-  cycleRewardsAmount.amount = cycleRewardsAmount.amount.plus(event.params.amount_);
-  cycleRewardsAmount.save();
+  const cycleRewardPerToken = loadOrCreateCycleRewardPerToken(event.params.rewardToken_, cycle);
+  cycleRewardPerToken.amount = cycleRewardPerToken.amount.plus(event.params.amount_);
+  cycleRewardPerToken.save();
 
-  updateBlockInfo(event, ["Cycle", "CycleRewardsAmount"]);
+  updateBlockInfo(event, ["Cycle", "CycleRewardPerToken"]);
 }

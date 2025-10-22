@@ -1,5 +1,5 @@
 import { BigInt, Bytes, BigDecimal, Address, log } from "@graphprotocol/graph-ts";
-import { BackerRewardPercentage, BlockChangeLog, Builder, BuilderState, Cycle, CycleRewardsAmount, GlobalDefaultAmount, GlobalMetric } from "../generated/schema";
+import { BackerRewardPercentage, BlockChangeLog, Builder, BuilderState, Cycle, CycleRewardPerToken, GlobalDistributionPerToken, GlobalMetric } from "../generated/schema";
 import { ContractConfig } from "../generated/schema";
 import { ethereum } from "@graphprotocol/graph-ts";
 
@@ -69,17 +69,17 @@ export function loadOrCreateCycle(cycleStart: Bytes): Cycle {
   return cycle;
 }
 
-export function loadOrCreateCycleRewards(token: Bytes, cycle: Cycle): CycleRewardsAmount {
+export function loadOrCreateCycleRewardPerToken(token: Bytes, cycle: Cycle): CycleRewardPerToken {
   const id = cycle.id.concat(token);
-  let cycleRewardsAmount = CycleRewardsAmount.load(id);
-  if (cycleRewardsAmount == null) {
-    cycleRewardsAmount = new CycleRewardsAmount(id);
-    cycleRewardsAmount.token = token;
-    cycleRewardsAmount.amount = DEFAULT_BIGINT;
-    cycleRewardsAmount.cycle = cycle.id;
+  let cycleRewardPerToken = CycleRewardPerToken.load(id);
+  if (cycleRewardPerToken == null) {
+    cycleRewardPerToken = new CycleRewardPerToken(id);
+    cycleRewardPerToken.token = token;
+    cycleRewardPerToken.amount = DEFAULT_BIGINT;
+    cycleRewardPerToken.cycle = cycle.id;
   }
 
-  return cycleRewardsAmount;
+  return cycleRewardPerToken;
 }
 
 export function loadOrCreateBlockChangeLog(blockHash: Bytes): BlockChangeLog {
@@ -144,17 +144,17 @@ export function loadOrCreateGlobalMetric(): GlobalMetric {
   return globalMetric;
 }
 
-export function loadOrCreateGlobalDefaultAmount(token: Bytes, globalMetric: GlobalMetric): GlobalDefaultAmount {
+export function loadOrCreateGlobalDistributionPerToken(token: Bytes, globalMetric: GlobalMetric): GlobalDistributionPerToken {
   const id = globalMetric.id.concat(token);
-  let globalDefaultAmount = GlobalDefaultAmount.load(id);
-  if (globalDefaultAmount == null) {
-    globalDefaultAmount = new GlobalDefaultAmount(id);
-    globalDefaultAmount.token = token;
-    globalDefaultAmount.amount = DEFAULT_BIGINT;
-    globalDefaultAmount.globalMetric = globalMetric.id;
+  let globalDistributionPerToken = GlobalDistributionPerToken.load(id);
+  if (globalDistributionPerToken == null) {
+    globalDistributionPerToken = new GlobalDistributionPerToken(id);
+    globalDistributionPerToken.token = token;
+    globalDistributionPerToken.amount = DEFAULT_BIGINT;
+    globalDistributionPerToken.globalMetric = globalMetric.id;
   }
 
-  return globalDefaultAmount;
+  return globalDistributionPerToken;
 }
 
 export function loadOrCreateContractConfig(): ContractConfig {
