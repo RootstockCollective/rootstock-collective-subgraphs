@@ -3,12 +3,13 @@
     "backersManager": {
         "address": "0x7c2D9C109919B50b9B00Ae173a0398b5EabEE17A",
         "startBlock": 6082737,
-        "upgradeV2": 6086355
+        "upgradeV2": 6086355,
+        "upgradeV3": 6962192
     },
     "builderRegistry": {
         "address": "0x543782852C8D5AD54022CaB60FE46578f4141405",
         "startBlock": 6082753,
-        "upgradeV3": 6082753
+        "upgradeV3": 6962192
     },
     "rewardDistributor": {
         "address": "0x7DbE5169BE874A9C994201b617f8D0378e27cbd9",

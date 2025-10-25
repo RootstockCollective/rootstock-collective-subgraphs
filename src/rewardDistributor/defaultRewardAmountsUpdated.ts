@@ -18,5 +18,5 @@ export function handleDefaultRewardAmountsUpdated(event: DefaultRewardAmountsUpd
   rifDistributionPerToken.amount = event.params.rifAmount_;
   rifDistributionPerToken.save();
 
-  updateBlockInfo(event, ["GlobalDefaultAmount"]);
+  updateBlockInfo(event, ["GlobalMetric", "GlobalDistributionPerToken"]);
 }

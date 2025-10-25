@@ -3,7 +3,8 @@
     "backersManager": {
         "address": "0xb7143af8C7afa3a170E183bE24127bF781Fb89B7",
         "startBlock": 6068555,
-        "upgradeV2": 6071592
+        "upgradeV2": 6071592,
+        "upgradeV3": 6954135
     },
     "builderRegistry": {
         "address": "0xDf1ED223f6EC3cC5e57ed5BeaE8031d6BD37516d",
