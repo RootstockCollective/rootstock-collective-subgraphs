@@ -42,7 +42,7 @@ type BuilderState @entity(immutable: false) {
   pausedReason: Bytes!
 }
 
-type BackerRewardPercentage @entity(immutable: false) { 
+type BackerRewardPercentage @entity(immutable: false) {
   id: Bytes!
   builder: Builder!
   previous: BigInt!
@@ -50,7 +50,7 @@ type BackerRewardPercentage @entity(immutable: false) {
   cooldownEndTime: BigInt!
 }
 
-type GaugeToBuilder @entity(immutable: true) { 
+type GaugeToBuilder @entity(immutable: true) {
   id: Bytes!
   builder: Bytes!
 }
@@ -59,7 +59,7 @@ type BuilderRewardsClaimed @entity(immutable: false) {
   id: Bytes!
   token: Bytes!
   amount: BigInt!
-  builder: Builder! 
+  builder: Builder!
 }
 
 type Proposal @entity(immutable: false) {
@@ -83,7 +83,7 @@ type BackersRewardsClaimed @entity(immutable: false) {
   id: Bytes!
   token: Bytes!
   amount: BigInt!
-  backer: Backer! 
+  backer: Backer!
 }
 
 type BackerToBuilder @entity(immutable: false) {
@@ -92,14 +92,15 @@ type BackerToBuilder @entity(immutable: false) {
   backer: Backer!
   builder: Builder!
   builderState: BuilderState!
-  rewardsClaimed: [BackerToBuilderRewardsClaimed!] @derivedFrom(field: "backerToBuilder")
+  rewardsClaimed: [BackerToBuilderRewardsClaimed!]
+    @derivedFrom(field: "backerToBuilder")
 }
 
 type BackerToBuilderRewardsClaimed @entity(immutable: false) {
   id: Bytes!
   token: Bytes!
   amount: BigInt!
-  backerToBuilder: BackerToBuilder! 
+  backerToBuilder: BackerToBuilder!
 }
 
 type Cycle @entity(immutable: false) {
@@ -113,7 +114,7 @@ type Cycle @entity(immutable: false) {
   rewardPerToken: [CycleRewardPerToken!] @derivedFrom(field: "cycle")
 }
 
-type CycleRewardPerToken @entity(immutable: false) { 
+type CycleRewardPerToken @entity(immutable: false) {
   id: Bytes!
   token: Bytes!
   amount: BigInt!
@@ -131,29 +132,42 @@ type ContractConfig @entity(immutable: false) {
 }
 
 type BlockChangeLog @entity(immutable: false) {
-  id: Bytes!
+  id: Bytes! # blockHash
   blockNumber: BigInt!
   blockTimestamp: BigInt!
-  updatedEntities: [String!]! 
+  updatedEntities: [String!]!
 }
 
-type GlobalMetric @entity(immutable: false) { 
+type GlobalMetric @entity(immutable: false) {
   id: Bytes!
   builders: [Bytes!]!
   totalAllocation: BigInt!
   totalPotentialReward: BigInt!
-  defaultDistributionPerToken: [GlobalDistributionPerToken!] @derivedFrom(field: "globalMetric")
+  defaultDistributionPerToken: [GlobalDistributionPerToken!]
+    @derivedFrom(field: "globalMetric")
 }
 
-type GlobalDistributionPerToken @entity(immutable: false) {  
+type GlobalDistributionPerToken @entity(immutable: false) {
   id: Bytes!
   token: Bytes!
   amount: BigInt!
   globalMetric: GlobalMetric!
 }
 
-type DailyAllocation @entity(immutable: false) { 
+type DailyAllocation @entity(immutable: false) {
   id: Bytes!
   day: Int!
   totalAllocation: BigInt!
+}
+
+# --- Tx History
+
+type ClaimedRewardsHistory @entity(immutable: true) {
+  id: Bytes!
+  cycleStart: BigInt!
+  blockHash: Bytes!
+  builder: Bytes!
+  rewardToken: Bytes!
+  backer: Bytes # If null then this is a builder reward claim
+  amount: BigInt!
 }
