@@ -4,7 +4,7 @@ indexerHints:
 schema:
   file: ./schema.graphql
 dataSources:
-  - kind: ethereum
+  - kind: ethereum # BackersManagerRootstockCollectiveV1
     name: BackersManagerRootstockCollectiveV1
     network: {{network}}
     source:
@@ -51,7 +51,40 @@ dataSources:
           handler: handlePermitted
         - event: BackerRewardPercentageUpdateScheduled(indexed address,uint256,uint256)
           handler: handleBackerRewardPercentageUpdateScheduled
-  - kind: ethereum
+  - kind: ethereum # BackersManagerRootstockCollectiveV2
+    name: BackersManagerRootstockCollectiveV2
+    network: {{network}}
+    source:
+      address: "{{backersManager.address}}"
+      abi: BackersManagerRootstockCollective
+      startBlock: {{backersManager.startBlock}}
+      endBlock: {{backersManager.upgradeV3}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/backersManager/v2/index.ts
+      entities:
+        - BackerStakingHistory
+        - GaugeStakingHistory
+        - Backer
+        - BackerToBuilder
+        - Cycle
+        - ContractConfig
+        - BlockChangeLog
+      abis:
+        - name: BackersManagerRootstockCollective
+          file: ./abis/BackersManagerRootstockCollective.json
+        - name: RewardDistributorRootstockCollective
+          file: ./abis/RewardDistributorRootstockCollective.json
+        - name: GaugeRootstockCollective
+          file: ./abis/GaugeRootstockCollective.json
+      eventHandlers:
+        - event: RewardDistributionFinished(indexed address)
+          handler: handleRewardDistributionFinished
+        - event: NotifyReward(indexed address,indexed address,uint256)
+          handler: handleNotifyReward
+  - kind: ethereum # BackersManagerRootstockCollectiveV3
     name: BackersManagerRootstockCollective
     network: {{network}}
     source:
@@ -91,16 +124,16 @@ dataSources:
           handler: handleRewardDistributionFinished
         - event: Upgraded(indexed address)
           handler: handleUpgraded
-        - event: NotifyReward(indexed address,indexed address,uint256)
-          handler: handleNotifyReward
-  - kind: ethereum
+        - event: RewardDistributionRewards(uint256,uint256,uint256)
+          handler: handleRewardDistributionRewards
+  - kind: ethereum # BuilderRegistryRootstockCollectiveV2
     name: BuilderRegistryRootstockCollectiveV2
     network: {{network}}
     source:
       address: "{{builderRegistry.address}}"
       abi: BuilderRegistryRootstockCollectiveV2
       startBlock: {{builderRegistry.startBlock}}
-      #endBlock: {{builderRegistry.upgradeV3}} disabled until upgrade is completed
+      endBlock: {{builderRegistry.upgradeV3}} 
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
@@ -140,14 +173,13 @@ dataSources:
           handler: handlePermitted
         - event: BackerRewardPercentageUpdateScheduled(indexed address,uint256,uint256)
           handler: handleBackerRewardPercentageUpdateScheduled
-  - kind: ethereum
+  - kind: ethereum # BuilderRegistryRootstockCollectiveV3
     name: BuilderRegistryRootstockCollective
     network: {{network}}
     source:
       address: "{{builderRegistry.address}}"
       abi: BuilderRegistryRootstockCollective
       startBlock: {{builderRegistry.upgradeV3}}
-      endBlock: {{builderRegistry.upgradeV3}} # disabled until upgrade is completed
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
@@ -189,7 +221,7 @@ dataSources:
           handler: handleUpgraded
         - event: BackerRewardPercentageUpdateScheduled(indexed address,uint256,uint256)
           handler: handleBackerRewardPercentageUpdateScheduled
-  - kind: ethereum
+  - kind: ethereum # RewardDistributorRootstockCollective
     name: RewardDistributorRootstockCollective
     network: {{network}}
     source:
@@ -210,6 +242,8 @@ dataSources:
       eventHandlers:
         - event: Upgraded(indexed address)
           handler: handleUpgraded
+        - event: DefaultRewardAmountsUpdated(uint256,uint256,uint256)
+          handler: handleDefaultRewardAmountsUpdated
 templates:
   - kind: ethereum
     name: GaugeRootstockCollective
