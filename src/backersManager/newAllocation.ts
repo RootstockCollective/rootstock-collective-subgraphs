@@ -177,11 +177,9 @@ function _handleAllocationHistory(event: NewAllocationEvent, gaugeToBuilder: Gau
 
   entity.backer = event.params.backer_;
   entity.builder = gaugeToBuilder.builder;
-  entity.gauge = event.params.gauge_;
   entity.allocation = event.params.allocation_;
   entity.cycleStart = cycleStart;
   entity.blockHash = event.block.hash;
-  entity.blockTimestamp = event.block.timestamp;
 
   entity.save();
 }

@@ -176,9 +176,7 @@ type AllocationHistory @entity(immutable: true) {
   id: Bytes!
   cycleStart: BigInt!
   blockHash: Bytes!
-  blockTimestamp: BigInt!
   backer: Bytes!
   builder: Bytes!
-  gauge: Bytes!
   allocation: BigInt!
 }
