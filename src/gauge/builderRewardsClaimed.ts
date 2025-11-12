@@ -77,6 +77,7 @@ function _updateClaimedRewards(event: BuilderRewardsClaimedEvent): void {
   entity.amount = event.params.amount_;
   entity.builder = gaugeToBuilder.builder;
   entity.cycleStart = cycleStart;
+  entity.blockTimestamp = event.block.timestamp;
 
   entity.blockHash = event.block.hash;
 

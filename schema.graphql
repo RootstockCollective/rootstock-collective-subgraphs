@@ -169,6 +169,7 @@ type ClaimedRewardsHistory @entity(immutable: true) {
   builder: Bytes!
   rewardToken: Bytes!
   backer: Bytes # If null then this is a builder reward claim
+  blockTimestamp: BigInt!
   amount: BigInt!
 }
 
@@ -179,4 +180,6 @@ type AllocationHistory @entity(immutable: true) {
   backer: Bytes!
   builder: Bytes!
   allocation: BigInt!
+  increased: Boolean!
+  blockTimestamp: BigInt!
 }
