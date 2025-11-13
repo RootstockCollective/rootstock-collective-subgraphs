@@ -1,5 +1,6 @@
 import { NewAllocation as NewAllocationEvent } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
 import {
+  AllocationHistory,
   BackerStakingHistory,
   GaugeStakingHistory,
   Backer,
@@ -23,11 +24,12 @@ export function handleNewAllocation(event: NewAllocationEvent): void {
   }
   
   _handleBuilderAndGlobalMetric(event, gaugeToBuilder);
+  _handleAllocationHistory(event, gaugeToBuilder);
   _handleBacker(event, gaugeToBuilder);
   _handleBackerToBuilder(event, gaugeToBuilder);
   _handleDailyAllocation(event);
 
-  updateBlockInfo(event, ["Builder", "Backer", "BackerToBuilder", "GlobalMetric", "BackerStakingHistory", "GaugeStakingHistory", "DailyAllocation"]);
+  updateBlockInfo(event, ["Builder", "Backer", "BackerToBuilder", "GlobalMetric", "BackerStakingHistory", "GaugeStakingHistory", "DailyAllocation", "AllocationHistory"]);
 }
 
 function _handleBackerStakingHistory(event: NewAllocationEvent): void {
@@ -161,4 +163,35 @@ function _handleDailyAllocation(event: NewAllocationEvent,): void {
   dailyAllocation.totalAllocation = globalMetric.totalAllocation;
   dailyAllocation.day = dayId;
   dailyAllocation.save();
+}
+
+function _handleAllocationHistory(event: NewAllocationEvent, gaugeToBuilder: GaugeToBuilder): void {
+  let entity = new AllocationHistory(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  );
+
+  let backerToBuilder = BackerToBuilder.load(
+    event.params.backer_.concat(gaugeToBuilder.builder)
+  );
+
+  if (backerToBuilder) {
+    entity.increased = event.params.allocation_.gt(backerToBuilder.totalAllocation);
+  } else {
+    // First allocation, consider it as an increase
+    entity.increased = true;
+  }
+
+  const backersManagerContract = BackersManagerRootstockCollectiveContract.bind(
+    event.address
+  );
+  const cycleStart = backersManagerContract.cycleStart(event.block.timestamp);
+
+  entity.backer = event.params.backer_;
+  entity.builder = gaugeToBuilder.builder;
+  entity.allocation = event.params.allocation_;
+  entity.blockTimestamp = event.block.timestamp;
+  entity.cycleStart = cycleStart;
+  entity.blockHash = event.block.hash;
+
+  entity.save();
 }
