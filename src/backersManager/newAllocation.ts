@@ -175,8 +175,9 @@ function _handleAllocationHistory(event: NewAllocationEvent, gaugeToBuilder: Gau
   );
 
   if (backerToBuilder) {
-    // Calculate the difference (new - previous)
-    entity.allocation = event.params.allocation_.minus(backerToBuilder.totalAllocation);
+    // Calculate the absolute difference
+    const difference = event.params.allocation_.minus(backerToBuilder.totalAllocation);
+    entity.allocation = difference.abs();
     entity.increased = event.params.allocation_.gt(backerToBuilder.totalAllocation);
   } else {
     // First allocation, the difference is the full amount
