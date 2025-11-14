@@ -175,9 +175,12 @@ function _handleAllocationHistory(event: NewAllocationEvent, gaugeToBuilder: Gau
   );
 
   if (backerToBuilder) {
+    // Calculate the difference (new - previous)
+    entity.allocation = event.params.allocation_.minus(backerToBuilder.totalAllocation);
     entity.increased = event.params.allocation_.gt(backerToBuilder.totalAllocation);
   } else {
-    // First allocation, consider it as an increase
+    // First allocation, the difference is the full amount
+    entity.allocation = event.params.allocation_;
     entity.increased = true;
   }
 
@@ -188,7 +191,6 @@ function _handleAllocationHistory(event: NewAllocationEvent, gaugeToBuilder: Gau
 
   entity.backer = event.params.backer_;
   entity.builder = gaugeToBuilder.builder;
-  entity.allocation = event.params.allocation_;
   entity.blockTimestamp = event.block.timestamp;
   entity.cycleStart = cycleStart;
   entity.blockHash = event.block.hash;
