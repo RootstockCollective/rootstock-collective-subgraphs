@@ -195,6 +195,7 @@ function _handleAllocationHistory(event: NewAllocationEvent, gaugeToBuilder: Gau
   entity.blockTimestamp = event.block.timestamp;
   entity.cycleStart = cycleStart;
   entity.blockHash = event.block.hash;
+  entity.transactionHash = event.transaction.hash;
 
   entity.save();
 }

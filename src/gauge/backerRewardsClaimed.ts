@@ -116,8 +116,8 @@ function _updateBackerRewardsClaimed(event: BackerRewardsClaimedEvent): void {
   entity.builder = gaugeToBuilder.builder;
   entity.cycleStart = cycleStart;
   entity.blockTimestamp = event.block.timestamp;
-
   entity.blockHash = event.block.hash;
-
+  entity.transactionHash = event.transaction.hash;
+  
   entity.save();
 }
