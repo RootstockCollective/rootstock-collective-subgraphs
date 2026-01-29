@@ -1,0 +1,20 @@
+name: Deploy Subgraph to Mainnet
+
+on:
+  release:
+    types: [released]
+  workflow_dispatch:
+
+# Declare default permissions as read only.
+permissions: read-all
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-template.yml
+    with:
+      environment: mainnet
+      subgraphId: rootstockcollective-collective-rewards
+      networkName: rootstock
+      graphUrl: https://api.studio.thegraph.com/deploy/
+      environmentName: mainnet
+    secrets: inherit
