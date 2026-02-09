@@ -12,7 +12,7 @@ This repository uses a reusable workflow pattern for deploying the Rootstock Col
 .github/
 ├── workflows/
 │   ├── deploy-template.yml                   # Reusable workflow template
-│   ├── testnet.deploy.yml                    # Testnet environment workflow
+│   ├── dev.deploy.yml                        # Testnet environment workflow
 │   ├── dao-qa.deploy.yml                     # DAO QA environment workflow
 │   ├── cr-qa.deploy.yml                      # CR QA environment workflow
 │   ├── release-candidate-testnet.deploy.yml  # RC Testnet workflow
@@ -47,7 +47,7 @@ This repository uses a reusable workflow pattern for deploying the Rootstock Col
 
 ### Testnet Environment
 - **Trigger**: Push to `main` branch (merge into main), Manual via `workflow_dispatch`
-- **Workflow**: `testnet.deploy.yml`
+- **Workflow**: `dev.deploy.yml`
 - **Permissions**: `read-all` (read-only by default)
 
 ### DAO QA Environment

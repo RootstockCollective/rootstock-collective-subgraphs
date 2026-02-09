@@ -1,10 +1,9 @@
-name: Deploy Subgraph to Testnet
+name: Deploy Subgraph to CR QA
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+  pull_request:
+    types: [labeled]
 
 # Declare default permissions as read only.
 permissions: read-all
@@ -13,9 +12,9 @@ jobs:
   deploy:
     uses: ./.github/workflows/deploy-template.yml
     with:
-      environment: testnet
-      subgraphId: rootstockcollective-collective-rewards-dev
+      environment: cr-qa
+      subgraphId: rootstockcollective-collective-rewards-cr-qa
       networkName: rootstock-testnet
       graphUrl: https://api.studio.thegraph.com/deploy/
-      environmentName: testnet
+      environmentName: cr-qa
     secrets: inherit
