@@ -1,7 +1,9 @@
 name: Deploy Subgraph to DAO QA
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Manually triggered from GitHub Actions tab
+  pull_request:
+    types: [labeled] # Triggered by a label in a PR
 
 # Declare default permissions as read only.
 permissions: read-all
