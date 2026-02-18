@@ -1,18 +1,18 @@
 {
     "network": "rootstock-testnet",
     "backersManager": {
-        "address": "0xd520cB42C46115762C02e4340646C2051ca3406d",
-        "startBlock": 7294206,
-        "upgradeV2": 7294206,
-        "upgradeV3": 7294206
+        "address": "0x70AC0FE4F8BCA42Aa7e713E1EDA2E8166d0f8Ed8",
+        "startBlock": 6072348,
+        "upgradeV2": 6180677,
+        "upgradeV3": 6962175
     },
     "builderRegistry": {
-        "address": "0x5FC1DD934ef2E6b5C4a433A3Ec0A1326834B0f42",
-        "startBlock": 7294208,
-        "upgradeV3": 7294208
+        "address": "0xad125E6D5C3B84329fa2466A8A6955F67906F4b2",
+        "startBlock": 6072538,
+        "upgradeV3": 6962175
     },
     "rewardDistributor": {
-        "address": "0x4DCD1859824e0000C6ab8aC29b017Df0834Cc3dd",
-        "startBlock": 7294204
+        "address": "0x35EB7d3e0907BCB838fbA3b08C4c65DB5431169f",
+        "startBlock": 6072347
     }
 }
