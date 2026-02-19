@@ -1,5 +1,6 @@
 {
   "name": "rootstock-collective-subgraphs",
+  "version": "3.1.1",
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
