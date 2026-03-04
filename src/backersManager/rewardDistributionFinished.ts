@@ -1,7 +1,7 @@
 import { RewardDistributionFinished as RewardDistributionFinishedEvent } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
 import { BackersManagerRootstockCollective as BackersManagerRootstockCollectiveContract } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
-import { loadOrCreateCycle, loadOrCreateGlobalMetric, updateBlockInfo } from "../utils";
-import { Bytes } from "@graphprotocol/graph-ts";
+import { CONTRACT_CONFIG_ID, DEFAULT_BYTES, loadOrCreateGlobalMetric, updateBlockInfo } from "../utils";
+import { ContractConfig, Cycle } from "../../generated/schema";
 
 export function handleRewardDistributionFinished(
   event: RewardDistributionFinishedEvent
@@ -9,14 +9,21 @@ export function handleRewardDistributionFinished(
   const backersManagerContract = BackersManagerRootstockCollectiveContract.bind(
     event.address
   );
-  const cycleStart = backersManagerContract.cycleStart(event.block.timestamp);
-  const cycle = loadOrCreateCycle(changetype<Bytes>(Bytes.fromBigInt(cycleStart)));
-  cycle.onDistributionPeriod = false;
-  cycle.save();
+
+  const contractConfig = ContractConfig.load(CONTRACT_CONFIG_ID);
+  if (contractConfig != null && !contractConfig.distributingCycleId.equals(DEFAULT_BYTES)) {
+    const cycle = Cycle.load(contractConfig.distributingCycleId);
+    if (cycle != null) {
+      cycle.onDistributionPeriod = false;
+      cycle.save();
+    }
+    contractConfig.distributingCycleId = DEFAULT_BYTES;
+    contractConfig.save();
+  }
 
   const globalMetric = loadOrCreateGlobalMetric();
   globalMetric.totalPotentialReward = backersManagerContract.totalPotentialReward();
   globalMetric.save();
 
-  updateBlockInfo(event, ["Cycle", "GlobalMetric"]);
+  updateBlockInfo(event, ["Cycle", "ContractConfig", "GlobalMetric"]);
 }

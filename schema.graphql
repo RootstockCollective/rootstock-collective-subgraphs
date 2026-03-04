@@ -107,9 +107,7 @@ type Cycle @entity(immutable: false) {
   id: Bytes!
   onDistributionPeriod: Boolean!
   currentCycleDuration: BigInt!
-  previousCycleDuration: BigInt!
   distributionDuration: BigInt!
-  previousCycleStart: BigInt!
   currentCycleStart: BigInt!
   rewardPerToken: [CycleRewardPerToken!] @derivedFrom(field: "cycle")
 }
@@ -126,6 +124,7 @@ type ContractConfig @entity(immutable: false) {
   backersManager: Bytes!
   builderRegistry: Bytes!
   rewardDistributor: Bytes!
+  distributingCycleId: Bytes!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   blockHash: Bytes!
