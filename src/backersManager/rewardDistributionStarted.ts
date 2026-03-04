@@ -1,7 +1,7 @@
 import { RewardDistributionStarted as RewardDistributionStartedEvent } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
 import { BackersManagerRootstockCollective as BackersManagerRootstockCollectiveContract } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
 import { Bytes } from "@graphprotocol/graph-ts";
-import { loadOrCreateCycle, updateBlockInfo } from "../utils";
+import { loadOrCreateContractConfig, loadOrCreateCycle, updateBlockInfo } from "../utils";
 
 export function handleRewardDistributionStarted(
   event: RewardDistributionStartedEvent
@@ -18,5 +18,9 @@ export function handleRewardDistributionStarted(
   cycle.distributionDuration = backersManagerContract.distributionDuration();
   cycle.save();
 
-  updateBlockInfo(event, ["Cycle"]);
+  const contractConfig = loadOrCreateContractConfig();
+  contractConfig.distributingCycleId = cycle.id;
+  contractConfig.save();
+
+  updateBlockInfo(event, ["Cycle", "ContractConfig"]);
 }
