@@ -1,7 +1,7 @@
 import { RewardDistributionRewards as RewardDistributionRewardsEvent } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
 import { BackersManagerRootstockCollective as BackersManagerRootstockCollectiveContract } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
-import { COINBASE_ADDRESS, CONTRACT_CONFIG_ID, loadOrCreateCycleRewardPerToken, updateBlockInfo } from "../utils";
-import { ContractConfig, Cycle } from "../../generated/schema";
+import { COINBASE_ADDRESS, loadOrCreateContractConfig, loadOrCreateCycleRewardPerToken, updateBlockInfo } from "../utils";
+import { Cycle } from "../../generated/schema";
 
 export function handleRewardDistributionRewards(
   event: RewardDistributionRewardsEvent
@@ -10,9 +10,7 @@ export function handleRewardDistributionRewards(
     event.address
   );
 
-  const contractConfig = ContractConfig.load(CONTRACT_CONFIG_ID);
-  if (contractConfig == null) return;
-
+  const contractConfig = loadOrCreateContractConfig();
   const cycle = Cycle.load(contractConfig.distributingCycleId);
   if (cycle == null) return;
 
