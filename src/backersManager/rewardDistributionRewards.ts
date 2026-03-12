@@ -1,23 +1,18 @@
 import { RewardDistributionRewards as RewardDistributionRewardsEvent } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
 import { BackersManagerRootstockCollective as BackersManagerRootstockCollectiveContract } from "../../generated/BackersManagerRootstockCollective/BackersManagerRootstockCollective";
-import { COINBASE_ADDRESS, loadOrCreateCycle, loadOrCreateCycleRewardPerToken, updateBlockInfo } from "../utils";
-import { Bytes } from "@graphprotocol/graph-ts";
+import { COINBASE_ADDRESS, loadOrCreateContractConfig, loadOrCreateCycleRewardPerToken, updateBlockInfo } from "../utils";
+import { Cycle } from "../../generated/schema";
 
 export function handleRewardDistributionRewards(
   event: RewardDistributionRewardsEvent
 ): void {
-
   const backersManagerContract = BackersManagerRootstockCollectiveContract.bind(
     event.address
   );
-  const currentCycleStart = backersManagerContract.cycleStart(event.block.timestamp);
 
-  const cycle = loadOrCreateCycle(changetype<Bytes>(Bytes.fromBigInt(currentCycleStart)));
-  cycle.onDistributionPeriod = true;
-  cycle.currentCycleStart = currentCycleStart;
-  cycle.currentCycleDuration = backersManagerContract.getCycleStartAndDuration().getValue1();
-  cycle.distributionDuration = backersManagerContract.distributionDuration();
-  cycle.save();
+  const contractConfig = loadOrCreateContractConfig();
+  const cycle = Cycle.load(contractConfig.distributingCycleId);
+  if (cycle == null) return;
 
   const rifCycleRewardPerToken = loadOrCreateCycleRewardPerToken(backersManagerContract.rifToken(), cycle);
   rifCycleRewardPerToken.amount = event.params.rifAmount_;
