@@ -163,7 +163,6 @@ export function loadOrCreateContractConfig(): ContractConfig {
     contractConfig.builderRegistry = ZERO_ADDRESS;
     contractConfig.rewardDistributor = ZERO_ADDRESS;
     contractConfig.backersManager = ZERO_ADDRESS;
-    contractConfig.distributingCycleId = DEFAULT_BYTES;
     contractConfig.blockNumber = DEFAULT_BIGINT;
     contractConfig.blockTimestamp = DEFAULT_BIGINT;
     contractConfig.blockHash = DEFAULT_BYTES;

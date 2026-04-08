@@ -124,7 +124,6 @@ type ContractConfig @entity(immutable: false) {
   backersManager: Bytes!
   builderRegistry: Bytes!
   rewardDistributor: Bytes!
-  distributingCycleId: Bytes!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   blockHash: Bytes!
