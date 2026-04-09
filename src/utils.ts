@@ -60,9 +60,7 @@ export function loadOrCreateCycle(cycleStart: Bytes): Cycle {
     cycle = new Cycle(cycleStart);
     cycle.onDistributionPeriod = false;
     cycle.currentCycleDuration = DEFAULT_BIGINT;
-    cycle.previousCycleDuration = DEFAULT_BIGINT;
     cycle.distributionDuration = DEFAULT_BIGINT;
-    cycle.previousCycleStart = DEFAULT_BIGINT;
     cycle.currentCycleStart = DEFAULT_BIGINT;
   }
 

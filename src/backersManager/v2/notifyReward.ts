@@ -8,11 +8,8 @@ export function handleNotifyReward(
 ): void {
   const backersManagerContract = BackersManagerRootstockCollectiveContract.bind(event.address);
   const nextCycleStart = backersManagerContract.cycleNext(event.block.timestamp);
-  const currentCycleStart = backersManagerContract.cycleStart(event.block.timestamp);
   const cycle = loadOrCreateCycle(changetype<Bytes>(Bytes.fromBigInt(nextCycleStart)));
 
-  cycle.previousCycleStart = currentCycleStart;
-  cycle.previousCycleDuration = backersManagerContract.getCycleStartAndDuration().getValue1();
   cycle.currentCycleStart = nextCycleStart;
   cycle.distributionDuration = backersManagerContract.distributionDuration();
   cycle.save();
