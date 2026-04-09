@@ -18,5 +18,5 @@ export function handleRewardDistributionStarted(
   cycle.distributionDuration = backersManagerContract.distributionDuration();
   cycle.save();
 
-  updateBlockInfo(event, ["Cycle", "ContractConfig"]);
+  updateBlockInfo(event, ["Cycle"]);
 }

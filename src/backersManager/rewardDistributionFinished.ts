@@ -19,5 +19,5 @@ export function handleRewardDistributionFinished(
   globalMetric.totalPotentialReward = backersManagerContract.totalPotentialReward();
   globalMetric.save();
 
-  updateBlockInfo(event, ["Cycle", "ContractConfig", "GlobalMetric"]);
+  updateBlockInfo(event, ["Cycle", "GlobalMetric"]);
 }
