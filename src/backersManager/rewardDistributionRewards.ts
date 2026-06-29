@@ -14,15 +14,15 @@ export function handleRewardDistributionRewards(
   const cycle = loadOrCreateCycle(changetype<Bytes>(Bytes.fromBigInt(currentCycleStart)));
 
   const rifCycleRewardPerToken = loadOrCreateCycleRewardPerToken(backersManagerContract.rifToken(), cycle);
-  rifCycleRewardPerToken.amount = event.params.rifAmount_;
+  rifCycleRewardPerToken.amount = rifCycleRewardPerToken.amount.plus(event.params.rifAmount_);
   rifCycleRewardPerToken.save();
 
   const usdrifCycleRewardPerToken = loadOrCreateCycleRewardPerToken(backersManagerContract.usdrifToken(), cycle);
-  usdrifCycleRewardPerToken.amount = event.params.usdrifAmount_;
+  usdrifCycleRewardPerToken.amount = usdrifCycleRewardPerToken.amount.plus(event.params.usdrifAmount_);
   usdrifCycleRewardPerToken.save();
 
   const nativeCycleRewardPerToken = loadOrCreateCycleRewardPerToken(COINBASE_ADDRESS, cycle);
-  nativeCycleRewardPerToken.amount = event.params.nativeAmount_;
+  nativeCycleRewardPerToken.amount = nativeCycleRewardPerToken.amount.plus(event.params.nativeAmount_);
   nativeCycleRewardPerToken.save();
 
   updateBlockInfo(event, ["Cycle", "CycleRewardPerToken"]);
