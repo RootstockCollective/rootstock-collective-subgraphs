@@ -109,6 +109,8 @@ type Cycle @entity(immutable: false) {
   currentCycleDuration: BigInt!
   distributionDuration: BigInt!
   currentCycleStart: BigInt!
+  "Block timestamp of this cycle's RewardDistributionFinished; unset while the distribution is open"
+  distributionFinishedAt: BigInt
   rewardPerToken: [CycleRewardPerToken!] @derivedFrom(field: "cycle")
 }
 
@@ -180,6 +182,18 @@ type AllocationHistory @entity(immutable: true) {
   builder: Bytes!
   allocation: BigInt!
   increased: Boolean!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type GaugeNotifyReward @entity(immutable: true) {
+  id: Bytes!
+  cycleStart: BigInt!
+  blockHash: Bytes!
+  gauge: Bytes!
+  rewardToken: Bytes!
+  builderAmount: BigInt!
+  backersAmount: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
