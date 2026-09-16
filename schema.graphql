@@ -109,6 +109,8 @@ type Cycle @entity(immutable: false) {
   currentCycleDuration: BigInt!
   distributionDuration: BigInt!
   currentCycleStart: BigInt!
+  "Block timestamp of this cycle's RewardDistributionFinished; unset while the distribution is open"
+  distributionFinishedAt: BigInt
   rewardPerToken: [CycleRewardPerToken!] @derivedFrom(field: "cycle")
 }
 
