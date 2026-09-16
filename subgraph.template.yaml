@@ -265,6 +265,7 @@ templates:
         - GaugeToBuilder
         - ContractConfig
         - BlockChangeLog
+        - GaugeNotifyReward
       abis:
         - name: GaugeRootstockCollective
           file: ./abis/GaugeRootstockCollective.json
@@ -277,3 +278,5 @@ templates:
           handler: handleBuilderRewardsClaimed
         - event: RewardSharesUpdated(uint256)
           handler: handleRewardSharesUpdated
+        - event: NotifyReward(indexed address,uint256,uint256)
+          handler: handleNotifyReward

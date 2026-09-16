@@ -183,3 +183,15 @@ type AllocationHistory @entity(immutable: true) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+
+type GaugeNotifyReward @entity(immutable: true) {
+  id: Bytes!
+  cycleStart: BigInt!
+  blockHash: Bytes!
+  gauge: Bytes!
+  rewardToken: Bytes!
+  builderAmount: BigInt!
+  backersAmount: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
